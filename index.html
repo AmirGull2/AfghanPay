@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Firebase Users1 List</title>
+    <title>Firebase Users3 List</title>
     <style>
         table {
             width: 100%;
@@ -21,11 +21,11 @@
     </style>
     <!-- Firebase SDK -->
     <script type="module">
-        // Firebase SDK
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
         import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
 
-        // Firebase ترتیب
+        // ✅ Firebase Config (ستا د Firebase معلومات)
         const firebaseConfig = {
             apiKey: "AIzaSyB-TXeyBbpgEiUYV-9QS8cB1CTQ2IaPahMa",
             authDomain: "afghanpay-480b2.firebaseapp.com",
@@ -36,37 +36,68 @@
             appId: "1:108490021475:web:b87be97f7682fb79e5266a"
         };
 
-        // Firebase اپلیکیشن پیل کړئ
+        // ✅ Firebase Initialize
         const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
         const database = getDatabase(app);
 
-        // د "users" نوډ ته لاسرسی
-        const usersRef = ref(database, 'users');
-
-        // د معلوماتو ترلاسه کول
-        onValue(usersRef, (snapshot) => {
-            const data = snapshot.val();
-            let tableBody = document.getElementById("usersList");
-            tableBody.innerHTML = ""; // جدول پاک کړئ
-
-            if (data) {
-                Object.keys(data).forEach(key => {
-                    let user = data[key];
-                    let row = `<tr>
-                        <td>${user.fullName || "نامعلوم"}</td>
-                        <td>${user.phoneNumber || "نامعلوم"}</td>
-                    </tr>`;
-                    tableBody.innerHTML += row;
-                });
+        // ✅ یوزر لاګ ان دی که نه؟
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                loadUsersData(); // که یوزر لاګ ان وي، معلومات ښکاره کړه
             } else {
-                tableBody.innerHTML = "<tr><td colspan='2'>هیڅ معلومات ونه موندل شول</td></tr>";
+                document.getElementById("usersList").innerHTML = "<tr><td colspan='2'>مهرباني وکړه، لاګ ان شه!</td></tr>";
             }
         });
+
+        // ✅ د Firebase څخه د معلوماتو اخيستل
+        function loadUsersData() {
+            const usersRef = ref(database, 'users');
+            onValue(usersRef, (snapshot) => {
+                const data = snapshot.val();
+                let tableBody = document.getElementById("usersList");
+                tableBody.innerHTML = ""; // جدول پاک کړه
+
+                if (data) {
+                    Object.keys(data).forEach(key => {
+                        let user = data[key];
+                        let row = `<tr>
+                            <td>${user.fullName || "نامعلوم"}</td>
+                            <td>${user.phoneNumber || "نامعلوم"}</td>
+                        </tr>`;
+                        tableBody.innerHTML += row;
+                    });
+                } else {
+                    tableBody.innerHTML = "<tr><td colspan='2'>هیڅ معلومات ونه موندل شول</td></tr>";
+                }
+            });
+        }
+
+        // ✅ د یوزر لاګ ان کول (د ټسټ لپاره)
+        function login() {
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+
+            signInWithEmailAndPassword(auth, email, password)
+                .then((userCredential) => {
+                    console.log("Successfully logged in");
+                    loadUsersData();
+                })
+                .catch((error) => {
+                    console.error("Login Failed:", error.message);
+                    alert("Login Failed: " + error.message);
+                });
+        }
     </script>
 </head>
 <body>
 
 <h2>د Firebase Users معلومات</h2>
+
+<!-- ✅ د لاګ ان فارم -->
+<input type="email" id="email" placeholder="Email" required>
+<input type="password" id="password" placeholder="Password" required>
+<button onclick="login()">لاګ ان شه</button>
 
 <table>
     <thead>
