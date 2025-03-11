@@ -3,48 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>📢 Afghan Pay نشرات 📢</title>
+    <title>AfghanPay Broadcasts</title>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
             text-align: center;
-            background-color: #f4f4f4;
+            background-color: #f8f9fa;
         }
-        h1 {
-            color: #333;
+        h2 {
+            color: #007bff;
         }
         ul {
             list-style-type: none;
             padding: 0;
-            margin: 20px auto;
-            width: 80%;
         }
         .list-item {
             background: white;
+            margin: 10px auto;
             padding: 15px;
+            width: 80%;
             border-radius: 5px;
-            box-shadow: 0 0 5px rgba(0,0,0,0.1);
-            margin-bottom: 10px;
-            text-align: left;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
         h3 {
-            margin: 0;
-            color: #007bff;
+            color: #343a40;
         }
         p {
-            margin: 5px 0;
-            color: #555;
+            color: #6c757d;
         }
     </style>
 </head>
 <body>
-    <h1>📢 Afghan Pay نشرات 📢</h1>
+
+    <h2>📢 AfghanPay نشریات</h2>
     <ul id="broadcastList"></ul>
 
     <script>
-        // ✅ Firebase تنظیمات
+        // 🔹 Firebase تنظیمات (دلته خپل معلومات ولیکئ)
         const firebaseConfig = {
             apiKey: "AIzaSyB-TXeyBbpgEiUYV-9QS8cB1CTQ2IaPahM",
             authDomain: "afghanpay-480b2.firebaseapp.com",
@@ -55,31 +52,54 @@
             appId: "1:1084900214751:android:b87be97f7682fb79e5266a"
         };
 
-        // ✅ Firebase Initialize
+        // 🔹 Firebase پېل کړئ
         const app = firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
-        // ✅ د نشراتو اخیستل او ListView کې ښکاره کول
+        // 🔹 د معلوماتو راوړلو فنکشن
         function loadBroadcasts() {
-            database.ref("AfghanPayUsers").on("child_added", (snapshot) => {
-                let data = snapshot.val();
+            database.ref("users").on("value", (snapshot) => {
+                let list = document.getElementById("broadcastList");
+                list.innerHTML = ""; // لیست پاکوي
 
-                let li = document.createElement("li");
-                li.classList.add("list-item");
+                snapshot.forEach((childSnapshot) => {
+                    let data = childSnapshot.val();
 
-                let name = document.createElement("h3");
-                name.textContent = "👤 " + data.fullName;
+                    let fullName = data.fullName && data.fullName.trim() !== "" ? data.fullName : "نامعلوم";
+                    let phoneNumber = data.phoneNumber && data.phoneNumber.trim() !== "" ? data.phoneNumber : "نامعلوم";
 
-                let phone = document.createElement("p");
-                phone.textContent = "📞 " + data.phoneNumber;
+                    let li = document.createElement("li");
+                    li.classList.add("list-item");
 
-                li.appendChild(name);
-                li.appendChild(phone);
-                document.getElementById("broadcastList").appendChild(li);
+                    let name = document.createElement("h3");
+                    name.textContent = "👤 " + fullName;
+
+                    let phone = document.createElement("p");
+                    phone.textContent = "📞 " + phoneNumber;
+
+                    li.appendChild(name);
+                    li.appendChild(phone);
+                    list.appendChild(li);
+                });
             });
         }
 
+        // 🔹 د معلوماتو پورته کولو فنکشن
+        function uploadBroadcast(fullName, phoneNumber) {
+            let newRef = database.ref("users").push();
+            newRef.set({
+                fullName: fullName,
+                phoneNumber: phoneNumber
+            }).then(() => {
+                alert("✅ معلومات اضافه شول!");
+            }).catch((error) => {
+                alert("❌ تېروتنه: " + error.message);
+            });
+        }
+
+        // 🔹 د نشریاتو پورته کول فعال کړئ
         loadBroadcasts();
     </script>
+
 </body>
 </html>
