@@ -3,88 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AfghanPay Users</title>
+    <title>Firebase Users List</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background-color: #f4f4f4;
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
         }
-        h2 {
-            color: #333;
-        }
-        #userList {
-            max-width: 600px;
-            margin: auto;
-            background: white;
+        th, td {
+            border: 1px solid black;
             padding: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: left;
         }
-        .userItem {
-            padding: 10px;
-            border-bottom: 1px solid #ddd;
-        }
-        .userItem:last-child {
-            border-bottom: none;
+        th {
+            background-color: #f2f2f2;
         }
     </style>
 </head>
 <body>
 
-    <h2>📢 AfghanPay Users</h2>
-    <div id="userList">Loading users...</div>
+<h2>د Firebase Users معلومات</h2>
 
-    <!-- ✅ Firebase Scripts -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js"></script>
+<table>
+    <thead>
+        <tr>
+            <th>نوم</th>
+            <th>د تلیفون شمېره</th>
+        </tr>
+    </thead>
+    <tbody id="usersList">
+        <tr><td colspan="2">Loading...</td></tr>
+    </tbody>
+</table>
 
-    <script>
-        // ✅ Firebase Configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyB-TXeyBbpgEiUYV-9QS8cB1CTQ2IaPahM",
-            authDomain: "afghanpay-480b2.firebaseapp.com",
-            databaseURL: "https://afghanpay-480b2-default-rtdb.firebaseio.com",
-            projectId: "afghanpay-480b2",
-            storageBucket: "afghanpay-480b2.appspot.com",
-            messagingSenderId: "1084900214751",
-            appId: "1:1084900214751:android:b87be97f7682fb79e5266a"
-        };
+<script>
+    fetch("https://afghanpay-480b2-default-rtdb.firebaseio.com/users.json")
+        .then(response => response.json())
+        .then(data => {
+            let tableBody = document.getElementById("usersList");
+            tableBody.innerHTML = ""; // Clear default loading text
 
-        // ✅ Firebase Initialize
-        const app = firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
-
-        // ✅ Users List Fetching Function
-        function fetchUsers() {
-            const userListDiv = document.getElementById("userList");
-            userListDiv.innerHTML = "🔄 Loading users...";
-
-            database.ref("AfghanPayUsers").once("value", (snapshot) => {
-                userListDiv.innerHTML = ""; // Clear previous data
-                if (snapshot.exists()) {
-                    snapshot.forEach((childSnapshot) => {
-                        const userData = childSnapshot.val();
-                        const fullName = userData.fullName || "No Name";
-                        const phoneNumber = userData.phoneNumber || "No Phone";
-
-                        // ✅ User Display HTML
-                        const userItem = document.createElement("div");
-                        userItem.className = "userItem";
-                        userItem.innerHTML = `<strong>📌 ${fullName}</strong> - 📞 ${phoneNumber}`;
-                        userListDiv.appendChild(userItem);
-                    });
-                } else {
-                    userListDiv.innerHTML = "❌ No users found!";
-                }
-            }).catch((error) => {
-                console.error("🔥 Error fetching users:", error);
-                userListDiv.innerHTML = "❌ Failed to load users!";
+            Object.keys(data).forEach(key => {
+                let user = data[key];
+                let row = `<tr>
+                    <td>${user.fullName || "نامعلوم"}</td>
+                    <td>${user.phoneNumber || "نامعلوم"}</td>
+                </tr>`;
+                tableBody.innerHTML += row;
             });
-        }
-
-        // ✅ Fetch Users on Page Load
-        window.onload = fetchUsers;
-    </script>
+        })
+        .catch(error => console.error("Error fetching data:", error));
+</script>
 
 </body>
 </html>
