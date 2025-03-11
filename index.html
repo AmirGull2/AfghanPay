@@ -3,60 +3,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>پښتو کاریال</title>
+    <title>📢 Afghan Pay نشرات 📢</title>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
     <style>
         body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #FFFFFF;
-            margin: 0;
             font-family: Arial, sans-serif;
-        }
-        .container {
             text-align: center;
-            padding: 20px;
+            background-color: #f4f4f4;
         }
-        .logo {
-            width: 80px;
-            height: 80px;
-            opacity: 0; /* د انیمیشن لپاره */
-            transition: opacity 1s ease-in-out;
+        h1 {
+            color: #333;
         }
-        .title {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 25px;
-            font-weight: bold;
-            margin-top: 10px;
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 20px auto;
+            width: 80%;
         }
-        .pashto {
-            color: #F44336;
-            margin-left: 5px;
+        .list-item {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0,0,0,0.1);
+            margin-bottom: 10px;
+            text-align: left;
+        }
+        h3 {
+            margin: 0;
+            color: #007bff;
+        }
+        p {
+            margin: 5px 0;
+            color: #555;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <img id="logo" src="img_evening_1.png" alt="لوګو" class="logo">
-        <div class="title">
-            <span>کاریال</span>
-            <span class="pashto">پښتو</span>
-        </div>
-    </div>
+    <h1>📢 Afghan Pay نشرات 📢</h1>
+    <ul id="broadcastList"></ul>
 
     <script>
-        // د انځور لپاره فېډ ان انیمیشن
-        window.onload = function() {
-            document.getElementById("logo").style.opacity = "1";
-            
-            // 3 ثانیې وروسته بلې صفحې ته لاړ شي
-            setTimeout(function() {
-                window.location.href = "home.html"; // د 'HomeActivity' لپاره
-            }, 3000);
+        // ✅ Firebase تنظیمات
+        const firebaseConfig = {
+            apiKey: "AIzaSyB-TXeyBbpgEiUYV-9QS8cB1CTQ2IaPahM",
+            authDomain: "afghanpay-480b2.firebaseapp.com",
+            databaseURL: "https://afghanpay-480b2-default-rtdb.firebaseio.com",
+            projectId: "afghanpay-480b2",
+            storageBucket: "afghanpay-480b2.appspot.com",
+            messagingSenderId: "1084900214751",
+            appId: "1:1084900214751:android:b87be97f7682fb79e5266a"
         };
+
+        // ✅ Firebase Initialize
+        const app = firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // ✅ د نشراتو اخیستل او ListView کې ښکاره کول
+        function loadBroadcasts() {
+            database.ref("AfghanPayUsers").on("child_added", (snapshot) => {
+                let data = snapshot.val();
+
+                let li = document.createElement("li");
+                li.classList.add("list-item");
+
+                let name = document.createElement("h3");
+                name.textContent = "👤 " + data.fullName;
+
+                let phone = document.createElement("p");
+                phone.textContent = "📞 " + data.phoneNumber;
+
+                li.appendChild(name);
+                li.appendChild(phone);
+                document.getElementById("broadcastList").appendChild(li);
+            });
+        }
+
+        loadBroadcasts();
     </script>
 </body>
 </html>
