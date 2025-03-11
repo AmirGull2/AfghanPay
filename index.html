@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Firebase Users List</title>
+    <title>Firebase Users1 List</title>
     <style>
         table {
             width: 100%;
@@ -20,8 +20,49 @@
         }
     </style>
     <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
+    <script type="module">
+        // Firebase SDK
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+
+        // Firebase ترتیب
+        const firebaseConfig = {
+            apiKey: "AIzaSyB-TXeyBbpgEiUYV-9QS8cB1CTQ2IaPahMa",
+            authDomain: "afghanpay-480b2.firebaseapp.com",
+            databaseURL: "https://afghanpay-480b2-default-rtdb.firebaseio.com",
+            projectId: "afghanpay-480b2",
+            storageBucket: "afghanpay-480b2.appspot.com",
+            messagingSenderId: "108490021475",
+            appId: "1:108490021475:web:b87be97f7682fb79e5266a"
+        };
+
+        // Firebase اپلیکیشن پیل کړئ
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        // د "users" نوډ ته لاسرسی
+        const usersRef = ref(database, 'users');
+
+        // د معلوماتو ترلاسه کول
+        onValue(usersRef, (snapshot) => {
+            const data = snapshot.val();
+            let tableBody = document.getElementById("usersList");
+            tableBody.innerHTML = ""; // جدول پاک کړئ
+
+            if (data) {
+                Object.keys(data).forEach(key => {
+                    let user = data[key];
+                    let row = `<tr>
+                        <td>${user.fullName || "نامعلوم"}</td>
+                        <td>${user.phoneNumber || "نامعلوم"}</td>
+                    </tr>`;
+                    tableBody.innerHTML += row;
+                });
+            } else {
+                tableBody.innerHTML = "<tr><td colspan='2'>هیڅ معلومات ونه موندل شول</td></tr>";
+            }
+        });
+    </script>
 </head>
 <body>
 
@@ -38,45 +79,6 @@
         <tr><td colspan="2">Loading...</td></tr>
     </tbody>
 </table>
-
-<script>
-    // Firebase ترتیب
-    const firebaseConfig = {
-        apiKey: "AIzaSyB-TXeyBbpgEiUYV-9QS8cB1CTQ2IaPahMa",
-        authDomain: "afghanpay-480b2.firebaseapp.com",
-        databaseURL: "https://afghanpay-480b2-default-rtdb.firebaseio.com",
-        projectId: "afghanpay-480b2",
-        storageBucket: "afghanpay-480b2.appspot.com",
-        messagingSenderId: "108490021475",
-        appId: "1:108490021475:web:b87be97f7682fb79e5266a"
-    };
-
-    // Firebase اپلیکیشن پیل کړئ
-    const app = firebase.initializeApp(firebaseConfig);
-    const database = firebase.database(app);
-
-    // Firebase ډیټابیس څخه د کارونکو معلومات ترلاسه کول
-    const usersRef = database.ref('users'); // دا د Firebase د معلوماتو لار ده
-
-    usersRef.on('value', (snapshot) => {
-        const data = snapshot.val();
-        let tableBody = document.getElementById("usersList");
-        tableBody.innerHTML = ""; // Clear default loading text
-
-        if (data) {
-            Object.keys(data).forEach(key => {
-                let user = data[key];
-                let row = `<tr>
-                    <td>${user.fullName || "نامعلوم"}</td>
-                    <td>${user.phoneNumber || "نامعلوم"}</td>
-                </tr>`;
-                tableBody.innerHTML += row;
-            });
-        } else {
-            tableBody.innerHTML = "<tr><td colspan='2'>هیڅ معلومات ونه موندل شول</td></tr>";
-        }
-    });
-</script>
 
 </body>
 </html>
