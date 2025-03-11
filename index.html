@@ -59,7 +59,8 @@
             const userListDiv = document.getElementById("userList");
             userListDiv.innerHTML = "🔄 Loading users...";
 
-            database.ref("users").once("value", (snapshot) => {
+            database.ref("u
+                         AfghanPayUsers").once("value", (snapshot) => {
                 userListDiv.innerHTML = ""; // Clear previous data
                 if (snapshot.exists()) {
                     snapshot.forEach((childSnapshot) => {
