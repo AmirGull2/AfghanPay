@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AfghanPay Broadcasts</title>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -39,66 +39,67 @@
 
     <h2>📢 AfghanPay نشریات</h2>
     <ul id="broadcastList"></ul>
+    <p id="errorMessage" style="color:red;"></p>
 
     <script>
-        // 🔹 Firebase تنظیمات (دلته خپل معلومات ولیکئ)
-        const firebaseConfig = {
-            apiKey: "AIzaSyB-TXeyBbpgEiUYV-9QS8cB1CTQ2IaPahM",
-            authDomain: "afghanpay-480b2.firebaseapp.com",
-            databaseURL: "https://afghanpay-480b2-default-rtdb.firebaseio.com",
-            projectId: "afghanpay-480b2",
-            storageBucket: "afghanpay-480b2.appspot.com",
-            messagingSenderId: "1084900214751",
-            appId: "1:1084900214751:android:b87be97f7682fb79e5266a"
-        };
+        try {
+            // 🔹 Firebase تنظیمات
+            const firebaseConfig = {
+                apiKey: "AIzaSyB-TXeyBbpgEiUYV-9QS8cB1CTQ2IaPahM",
+                authDomain: "afghanpay-480b2.firebaseapp.com",
+                databaseURL: "https://afghanpay-480b2-default-rtdb.firebaseio.com",
+                projectId: "afghanpay-480b2",
+                storageBucket: "afghanpay-480b2.appspot.com",
+                messagingSenderId: "1084900214751",
+                appId: "1:1084900214751:android:b87be97f7682fb79e5266a"
+            };
 
-        // 🔹 Firebase پېل کړئ
-        const app = firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
+            // 🔹 Firebase پېل کړئ
+            const app = firebase.initializeApp(firebaseConfig);
+            const database = firebase.database();
 
-        // 🔹 د معلوماتو راوړلو فنکشن
-        function loadBroadcasts() {
-            database.ref("users").on("value", (snapshot) => {
-                let list = document.getElementById("broadcastList");
-                list.innerHTML = ""; // لیست پاکوي
+            // 🔹 د معلوماتو راوړلو فنکشن
+            function loadBroadcasts() {
+                database.ref("users").once("value")
+                    .then((snapshot) => {
+                        let list = document.getElementById("broadcastList");
+                        list.innerHTML = ""; // لیست پاکوي
 
-                snapshot.forEach((childSnapshot) => {
-                    let data = childSnapshot.val();
+                        if (!snapshot.exists()) {
+                            document.getElementById("errorMessage").textContent = "⚠️ هیڅ معلومات نه موندل شول!";
+                            return;
+                        }
 
-                    let fullName = data.fullName && data.fullName.trim() !== "" ? data.fullName : "نامعلوم";
-                    let phoneNumber = data.phoneNumber && data.phoneNumber.trim() !== "" ? data.phoneNumber : "نامعلوم";
+                        snapshot.forEach((childSnapshot) => {
+                            let data = childSnapshot.val();
+                            let fullName = data.fullName ? data.fullName : "نامعلوم";
+                            let phoneNumber = data.phoneNumber ? data.phoneNumber : "نامعلوم";
 
-                    let li = document.createElement("li");
-                    li.classList.add("list-item");
+                            let li = document.createElement("li");
+                            li.classList.add("list-item");
 
-                    let name = document.createElement("h3");
-                    name.textContent = "👤 " + fullName;
+                            let name = document.createElement("h3");
+                            name.textContent = "👤 " + fullName;
 
-                    let phone = document.createElement("p");
-                    phone.textContent = "📞 " + phoneNumber;
+                            let phone = document.createElement("p");
+                            phone.textContent = "📞 " + phoneNumber;
 
-                    li.appendChild(name);
-                    li.appendChild(phone);
-                    list.appendChild(li);
-                });
-            });
+                            li.appendChild(name);
+                            li.appendChild(phone);
+                            list.appendChild(li);
+                        });
+                    })
+                    .catch((error) => {
+                        document.getElementById("errorMessage").textContent = "🔥 تېروتنه: " + error.message;
+                    });
+            }
+
+            // 🔹 نشریات پورته کول
+            loadBroadcasts();
+
+        } catch (error) {
+            document.getElementById("errorMessage").textContent = "🔥 تېروتنه: " + error.message;
         }
-
-        // 🔹 د معلوماتو پورته کولو فنکشن
-        function uploadBroadcast(fullName, phoneNumber) {
-            let newRef = database.ref("users").push();
-            newRef.set({
-                fullName: fullName,
-                phoneNumber: phoneNumber
-            }).then(() => {
-                alert("✅ معلومات اضافه شول!");
-            }).catch((error) => {
-                alert("❌ تېروتنه: " + error.message);
-            });
-        }
-
-        // 🔹 د نشریاتو پورته کول فعال کړئ
-        loadBroadcasts();
     </script>
 
 </body>
