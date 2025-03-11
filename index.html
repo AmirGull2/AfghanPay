@@ -3,113 +3,91 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Firebase Users3 List</title>
+    <title>د لاگ ان - پښتو شعرونه</title>
     <style>
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 50px;
+            background: #f3f4f6;
+            color: #333;
         }
-        th, td {
-            border: 1px solid black;
+        h1 {
+            font-size: 40px;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+        input {
             padding: 10px;
-            text-align: left;
+            margin: 10px;
+            width: 100%;
+            max-width: 300px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
         }
-        th {
-            background-color: #f2f2f2;
+        button {
+            background-color: #27ae60;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 18px;
+            margin-top: 20px;
+            width: 100%;
+            max-width: 300px;
+        }
+        button:hover {
+            background-color: #2ecc71;
+        }
+        p {
+            font-size: 18px;
         }
     </style>
-    <!-- Firebase SDK -->
+</head>
+<body>
+
+    <h1>د لاگ ان</h1>
+    <input type="email" id="email" placeholder="ایمیل داخل کړئ" required>
+    <input type="password" id="password" placeholder="پاسورډ داخل کړئ" required>
+    <button onclick="logIn()">د لاگ ان</button>
+    <p>که تاسو حساب نلرئ؟ <a href="signup.html">د حساب جوړولو لپاره دلته کلیک کړئ</a></p>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
-        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
 
-        // ✅ Firebase Config (ستا د Firebase معلومات)
-        const firebaseConfig = {
-            apiKey: "AIzaSyB-TXeyBbpgEiUYV-9QS8cB1CTQ2IaPahMa",
+        const firebaseConfig = { 
+            apiKey: "AIzaSyB-TXeyBbpgEiUYV-9QS8cB1CTQ2IaPahM",  // د Firebase API Key دلته ځای پر ځای کړئ
             authDomain: "afghanpay-480b2.firebaseapp.com",
             databaseURL: "https://afghanpay-480b2-default-rtdb.firebaseio.com",
             projectId: "afghanpay-480b2",
             storageBucket: "afghanpay-480b2.appspot.com",
-            messagingSenderId: "108490021475",
-            appId: "1:108490021475:web:b87be97f7682fb79e5266a"
+            messagingSenderId: "1084900214751",
+            appId: "1:1084900214751:web:cbf6ee6b5f4db2c0e5266a"
         };
 
-        // ✅ Firebase Initialize
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
-        const database = getDatabase(app);
 
-        // ✅ یوزر لاګ ان دی که نه؟
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                loadUsersData(); // که یوزر لاګ ان وي، معلومات ښکاره کړه
-            } else {
-                document.getElementById("usersList").innerHTML = "<tr><td colspan='2'>مهرباني وکړه، لاګ ان شه!</td></tr>";
-            }
-        });
-
-        // ✅ د Firebase څخه د معلوماتو اخيستل
-        function loadUsersData() {
-            const usersRef = ref(database, 'users');
-            onValue(usersRef, (snapshot) => {
-                const data = snapshot.val();
-                let tableBody = document.getElementById("usersList");
-                tableBody.innerHTML = ""; // جدول پاک کړه
-
-                if (data) {
-                    Object.keys(data).forEach(key => {
-                        let user = data[key];
-                        let row = `<tr>
-                            <td>${user.fullName || "نامعلوم"}</td>
-                            <td>${user.phoneNumber || "نامعلوم"}</td>
-                        </tr>`;
-                        tableBody.innerHTML += row;
-                    });
-                } else {
-                    tableBody.innerHTML = "<tr><td colspan='2'>هیڅ معلومات ونه موندل شول</td></tr>";
-                }
-            });
-        }
-
-        // ✅ د یوزر لاګ ان کول (د ټسټ لپاره)
-        function login() {
+        function logIn() {
             const email = document.getElementById("email").value;
             const password = document.getElementById("password").value;
 
             signInWithEmailAndPassword(auth, email, password)
                 .then((userCredential) => {
-                    console.log("Successfully logged in");
-                    loadUsersData();
+                    const user = userCredential.user;
+                    // Redirect to home page after successful login
+                    window.location.href = "home.html";
                 })
                 .catch((error) => {
-                    console.error("Login Failed:", error.message);
-                    alert("Login Failed: " + error.message);
+                    const errorCode = error.code;
+                    const errorMessage = error.message;
+                    alert("Error: " + errorMessage);
+                    console.error(errorCode, errorMessage);
                 });
         }
     </script>
-</head>
-<body>
-
-<h2>د Firebase Users معلومات</h2>
-
-<!-- ✅ د لاګ ان فارم -->
-<input type="email" id="email" placeholder="Email" required>
-<input type="password" id="password" placeholder="Password" required>
-<button onclick="login()">لاګ ان شه</button>
-
-<table>
-    <thead>
-        <tr>
-            <th>نوم</th>
-            <th>د تلیفون شمېره</th>
-        </tr>
-    </thead>
-    <tbody id="usersList">
-        <tr><td colspan="2">Loading...</td></tr>
-    </tbody>
-</table>
-
 </body>
 </html>
