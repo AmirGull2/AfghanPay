@@ -53,7 +53,7 @@ input,select {width:100%; padding:10px; border-radius:8px; border:1px solid #ccc
 
   <section id="home" class="page">
     <h3>🎬 Watch Ads & Earn</h3>
-    <button class="main" onclick="watchAd()">Watch Ad (0.15 AFN)</button>
+    <button id="adBtn" class="main">Watch Ad (0.15 AFN)</button>
     <p id="adsToday">You watched 0 ads today</p>
   </section>
 
@@ -113,15 +113,17 @@ let userId = user ? user.id : "guest_" + Math.random().toString(36).substr(2,5);
 let balance = 0;
 let adsWatched = 0;
 
+// Splash
 setTimeout(() => {
   document.getElementById('splash').style.display = 'none';
   document.getElementById('app').style.display = 'block';
-  if (user) {
+  if(user){
     document.getElementById('user_name').innerText = user.first_name;
     document.getElementById('profile_name').innerText = user.first_name;
     document.getElementById('profile_id').innerText = user.id;
     document.getElementById('user_photo').src = user.photo_url || 'https://i.imgur.com/6VBx3io.png';
   }
+  dailyBonus();
   loadUser();
 }, 2000);
 
@@ -130,12 +132,11 @@ function showPage(p){
   document.getElementById(p).style.display='block';
 }
 
-// Montage Rewarded Ads
+// Rewarded Ad
+document.getElementById('adBtn').addEventListener('click', () => watchAd());
+
 function watchAd(){
-  if(adsWatched >= 20) {
-    alert("تاسو د نن ورځي 20 اعلانونه کتل!");
-    return;
-  }
+  if(adsWatched >= 20){ alert("تاسو د نن ورځي 20 اعلانونه کتل!"); return; }
 
   show_10016982({type:'inApp', inAppSettings:{frequency:2, capping:0.1, interval:30, timeout:5, everyPage:false}})
   .then(()=>{
@@ -157,9 +158,8 @@ function loadUser(){
       balance = data.balance || 0;
       adsWatched = data.adsWatched || 0;
       updateUserUI();
-    } else {
-      updateUser();
-    }
+    } else { updateUser(); }
+    updateLeaderboard();
   });
 }
 
@@ -168,7 +168,8 @@ function updateUser(){
   db.ref('users/' + userId).set({
     name: user ? user.first_name : "Guest",
     balance: balance,
-    adsWatched: adsWatched
+    adsWatched: adsWatched,
+    lastLogin: Date.now()
   });
   updateUserUI();
 }
@@ -179,20 +180,43 @@ function updateUserUI(){
   document.getElementById('adsToday').innerText = `You watched ${adsWatched} ads today (Earned: ${balance.toFixed(2)} AFN)`;
 }
 
+// Daily Bonus 1 AFN
+function dailyBonus(){
+  db.ref('users/' + userId).once('value').then(snapshot=>{
+    const lastLogin = snapshot.val() ? snapshot.val().lastLogin : 0;
+    const now = new Date().setHours(0,0,0,0);
+    if(!lastLogin || lastLogin < now){
+      balance += 1;
+      updateUser();
+      alert("🎁 Daily Bonus: 1 AFN added!");
+    }
+  });
+}
+
+// Leaderboard
+function updateLeaderboard(){
+  db.ref('users').orderByChild('balance').limitToLast(10).once('value', snapshot=>{
+    const list = document.getElementById('leaderboardList');
+    list.innerHTML = '';
+    const usersArray = [];
+    snapshot.forEach(userSnap => usersArray.push(userSnap.val()));
+    usersArray.reverse(); // highest balance first
+    usersArray.forEach(u=>{
+      const li = document.createElement('li');
+      li.textContent = `${u.name} - ${u.balance.toFixed(2)} AFN`;
+      list.appendChild(li);
+    });
+  });
+}
+
 // Top-up
 function topup(){
   const amount = parseFloat(document.getElementById('amount').value);
   const phone = document.getElementById('phone').value;
   const network = document.getElementById('network').value;
 
-  if(amount < 25){
-    alert("د Top-up لپاره لږ تر لږه ۲۵ افغانی اړینه ده!");
-    return;
-  }
-  if(amount > balance){
-    alert("کافي موجودي نه لرئ!");
-    return;
-  }
+  if(amount < 25){ alert("د Top-up لپاره لږ تر لږه ۲۵ افغانی اړینه ده!"); return; }
+  if(amount > balance){ alert("کافي موجودي نه لرئ!"); return; }
 
   balance -= amount;
   updateUser();
@@ -200,4 +224,4 @@ function topup(){
 }
 </script>
 </body>
-    </html>
+</html>
