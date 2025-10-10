@@ -1,97 +1,106 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="ps">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>ZaroratPay — Telegram Mini App</title>
-<!-- Basic styles (mobile-first) -->
-<style>
-  :root{
-    --primary:#0088cc;
-    --primary-dark:#006699;
-    --bg:#f0f4f7;
-    --card:#fff;
-    --radius:14px;
-    --maxw:420px;
-  }
-  *{box-sizing:border-box}
-  body{font-family:Arial,Helvetica,sans-serif;background:var(--bg);margin:0;display:flex;align-items:flex-start;justify-content:center;padding:18px 12px 40px;}
-  .app{width:100%;max-width:var(--maxw);}
-  .center{display:flex;align-items:center;justify-content:center}
-  .splash{height:80vh;display:flex;flex-direction:column;align-items:center;justify-content:center;color:white;background:var(--primary);border-radius:16px;padding:24px;text-align:center;}
-  .card{background:var(--card);padding:16px;border-radius:var(--radius);box-shadow:0 6px 18px rgba(0,0,0,0.08);margin-bottom:12px;}
-  img.profile{width:84px;height:84px;border-radius:50%;object-fit:cover;border:3px solid #fff;box-shadow:0 4px 12px rgba(0,0,0,0.08);}
-  h1,h2,h3{margin:8px 0}
-  .menu{display:flex;flex-wrap:wrap;gap:8px}
-  .btn{background:var(--primary);color:#fff;border:none;padding:10px 12px;border-radius:10px;cursor:pointer;font-weight:600}
-  .btn.ghost{background:transparent;color:var(--primary);border:1px solid rgba(0,136,204,0.12)}
-  .row{display:flex;gap:8px;align-items:center}
-  .field{width:100%;padding:10px;border-radius:10px;border:1px solid #ddd}
-  .leader-item{display:flex;justify-content:space-between;padding:8px 4px;border-bottom:1px solid #f0f0f0}
-  .small{font-size:13px;color:#666}
-  nav.bottom{position:fixed;left:50%;transform:translateX(-50%);bottom:12px;background:transparent;width:100%;max-width:var(--maxw);display:flex;justify-content:space-around;padding:0 8px}
-  nav.bottom button{flex:1;margin:0 6px}
-  .hidden{display:none}
-  .note{font-size:13px;color:#444}
-  .warning{color:#8a2b2b;background:#fff0f0;padding:8px;border-radius:8px}
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ZaroratPay MiniApp</title>
+  <style>
+    :root{--primary:#0088cc;--dark:#006699;--bg:#f5f8fa;--card:#fff;--radius:12px;--maxw:460px}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);display:flex;justify-content:center;padding:18px}
+    .app{width:100%;max-width:var(--maxw)}
+    .splash{background:var(--primary);color:#fff;padding:28px;border-radius:16px;text-align:center;margin-bottom:12px}
+    .card{background:var(--card);padding:14px;border-radius:var(--radius);box-shadow:0 6px 18px rgba(0,0,0,0.06);margin-bottom:12px}
+    .row{display:flex;gap:8px;align-items:center}
+    img.avatar{width:80px;height:80px;border-radius:50%;object-fit:cover}
+    h1,h2,h3{margin:6px 0}
+    .small{font-size:13px;color:#666}
+    .btn{background:var(--primary);color:#fff;border:none;padding:10px 12px;border-radius:10px;cursor:pointer;font-weight:600}
+    .btn.ghost{background:transparent;color:var(--primary);border:1px solid rgba(0,136,204,0.12)}
+    input,select{padding:10px;border-radius:10px;border:1px solid #e0e0e0;width:100%}
+    .menu{display:flex;gap:8px;flex-wrap:wrap}
+    .note{font-size:13px;color:#444}
+    .error{color:#8a2b2b;background:#fff0f0;padding:8px;border-radius:8px}
+    nav.bottom{position:fixed;left:50%;transform:translateX(-50%);bottom:12px;width:100%;max-width:var(--maxw);display:flex;justify-content:space-around;padding:0 8px}
+    nav.bottom button{flex:1;margin:0 6px}
+    .hidden{display:none}
+    .tx-item{padding:8px;border-bottom:1px solid #f4f4f4}
+  </style>
 </head>
 <body>
   <div class="app">
 
     <!-- SPLASH -->
     <div id="splash" class="splash card">
-      <img src="" id="splashPhoto" class="profile" style="width:96px;height:96px;border-radius:50%;margin-bottom:12px" />
-      <h1 id="splashName">ZaroratPay</h1>
-      <p class="small" id="splashSub">Loading... please open from Telegram to auto-login</p>
-      <div style="margin-top:12px">
-        <button class="btn" onclick="goHome()">Enter App</button>
+      <img id="splashPhoto" src="https://via.placeholder.com/96" class="avatar" alt="photo" style="margin-bottom:10px"/>
+      <h1 id="splashTitle">ZaroratPay</h1>
+      <p id="splashSub" class="small">Telegram کې د Mini App له لارې خلاص کړئ — اتومات Login کېږي</p>
+      <div style="margin-top:10px">
+        <button class="btn" onclick="enterDemo()">د ډیمو داخلول</button>
       </div>
-      <p class="small" style="margin-top:10px">If not opened inside Telegram — user data won't be available.</p>
     </div>
 
     <!-- APP MAIN -->
     <div id="appMain" class="hidden">
 
       <!-- PROFILE CARD -->
-      <div class="card" id="profileCard">
-        <div style="display:flex;gap:12px;align-items:center">
-          <img id="profilePhoto" class="profile" src="https://via.placeholder.com/100" alt="photo" />
-          <div style="flex:1">
-            <h2 id="profileName">Hello</h2>
-            <div class="small" id="profileUsername">@username</div>
-            <div class="small" id="profileId" style="margin-top:6px"></div>
-          </div>
+      <div class="card row" id="profileCard" style="align-items:center">
+        <img id="profilePhoto" class="avatar" src="https://via.placeholder.com/100" alt="photo"/>
+        <div style="flex:1">
+          <h2 id="profileName">Guest</h2>
+          <div class="small" id="profileUsername"></div>
+          <div class="small" id="profileId"></div>
+          <div style="margin-top:8px" class="small">Balance: <strong id="balance">0</strong> AFN</div>
         </div>
       </div>
 
       <!-- HOME -->
       <div id="home" class="card">
-        <h3>Home</h3>
-        <p class="note">Balance: <strong id="balance">0</strong> AFN</p>
-        <div class="menu" style="margin-top:10px">
-          <button class="btn" onclick="showSection('leaderboard')">Leaderboard</button>
-          <button class="btn" onclick="showSection('deposit')">Deposit / Wallet</button>
+        <h3>کور | Home</h3>
+        <p class="note">ستاسو حساب ته اعلانونه کتل — هر اعلان لپاره <strong>0.15 AFN</strong>.</p>
+        <div style="margin-top:10px" class="menu">
+          <button class="btn" id="watchAdBtn" onclick="watchRewardedAd()">Watch & Earn 0.15 AFN</button>
+          <button class="btn ghost" onclick="showSection('leaderboard')">Leaderboard</button>
+          <button class="btn ghost" onclick="showSection('wallet')">Wallet / Top-up</button>
           <button class="btn ghost" onclick="showSection('profile')">Profile</button>
-          <button class="btn ghost" onclick="showSection('settings')">Settings</button>
         </div>
+        <p class="small" id="adsInfo" style="margin-top:10px"></p>
       </div>
 
       <!-- LEADERBOARD -->
       <div id="leaderboard" class="card hidden">
         <h3>Leaderboard</h3>
-        <div id="leaderList" style="margin-top:8px"></div>
+        <div id="leaderList" class="small">Loading...</div>
       </div>
 
-      <!-- DEPOSIT / WALLET -->
-      <div id="deposit" class="card hidden">
-        <h3>Deposit / Wallet</h3>
-        <p class="small">Add a demo balance to your wallet. (For production integrate payment gateway)</p>
-        <div style="margin-top:8px" class="row">
-          <input id="depositAmount" class="field" type="number" placeholder="Amount (AFN)" />
-          <button class="btn" onclick="doDeposit()">Add</button>
+      <!-- WALLET / TOP-UP -->
+      <div id="wallet" class="card hidden">
+        <h3>Wallet & Mobile Top-up</h3>
+        <p class="small">ستاسو موجود بیلانس: <strong id="walletBalance">0</strong> AFN</p>
+
+        <hr style="margin:10px 0"/>
+        <h4>Mobile Top-up</h4>
+        <div style="margin-top:8px">
+          <label class="small">Operator</label>
+          <select id="operator">
+            <option value="MTN">MTN</option>
+            <option value="Ariana">Ariana</option>
+            <option value="Salaam">Salaam</option>
+          </select>
         </div>
-        <div style="margin-top:10px" id="txStatus" class="small"></div>
+        <div style="margin-top:8px">
+          <label class="small">Phone Number</label>
+          <input id="phone" type="tel" placeholder="07XXXXXXXX" />
+        </div>
+        <div style="margin-top:8px">
+          <label class="small">Amount (AFN) — Minimum 25</label>
+          <input id="topupAmount" type="number" placeholder="مثال: 25" />
+        </div>
+        <div style="margin-top:10px" class="row">
+          <button class="btn" onclick="doTopup()">Top-up Now</button>
+          <button class="btn ghost" onclick="showSection('transactions')">Tx History</button>
+        </div>
+        <div id="topupStatus" class="small" style="margin-top:10px"></div>
 
         <hr style="margin:12px 0"/>
         <h4>Transactions</h4>
@@ -101,22 +110,22 @@
       <!-- PROFILE PAGE -->
       <div id="profile" class="card hidden">
         <h3>Profile</h3>
-        <p id="profileInfo" class="small"></p>
-        <button class="btn" onclick="openTelegramChat()">Open Chat with Bot</button>
+        <p class="small">Name: <strong id="p_name"></strong></p>
+        <p class="small">Username: <strong id="p_username"></strong></p>
+        <p class="small">Telegram ID: <strong id="p_id"></strong></p>
+        <p class="small">Ads today: <strong id="p_ads_today">0</strong>/20</p>
+      </div>
+
+      <!-- TRANSACTIONS (hidden by default) -->
+      <div id="transactions" class="card hidden">
+        <h3>Transactions</h3>
+        <div id="transactionsList" class="small">Loading...</div>
       </div>
 
       <!-- SETTINGS -->
       <div id="settings" class="card hidden">
         <h3>Settings</h3>
-        <p class="small">App demo settings.</p>
-        <div style="margin-top:8px">
-          <label class="small">Theme</label>
-          <div style="margin-top:6px" class="row">
-            <button class="btn ghost" onclick="alert('Theme set demo')">Light</button>
-            <button class="btn" onclick="alert('Theme set demo')">Dark</button>
-          </div>
-        </div>
-        <div style="margin-top:10px" class="warning">For production enable server-side validation of Telegram initData and secure payment flow.</div>
+        <p class="small">Demo settings. For production enable server-side validation & secure payment providers.</p>
       </div>
 
     </div>
@@ -125,257 +134,408 @@
     <nav class="bottom">
       <button class="btn ghost" onclick="showSection('home')">Home</button>
       <button class="btn ghost" onclick="showSection('leaderboard')">Leaderboard</button>
-      <button class="btn ghost" onclick="showSection('deposit')">Deposit</button>
+      <button class="btn ghost" onclick="showSection('wallet')">Wallet</button>
       <button class="btn ghost" onclick="showSection('profile')">Profile</button>
       <button class="btn ghost" onclick="showSection('settings')">Settings</button>
     </nav>
 
   </div>
 
-<!-- Firebase JS (compat) and Telegram WebApp -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-<script async src="https://telegram.org/js/telegram-web-app.js"></script>
+  <!-- Firebase (compat) and Montage ad script -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
-<script>
-/* ============================
-   Config: use your provided Firebase config
-   ============================ */
-const firebaseConfig = {
-  apiKey: "AIzaSyDCcKpU-6lPnjn7NSTZVq6R5HGLac2GlAk",
-  authDomain: "zaroratpay.firebaseapp.com",
-  databaseURL: "https://zaroratpay-default-rtdb.firebaseio.com",
-  projectId: "zaroratpay",
-  storageBucket: "zaroratpay.firebasestorage.app",
-  messagingSenderId: "992212281257",
-  appId: "1:992212281257:web:bf5e442cc2636725ee06b8",
-  measurementId: "G-51VT4W8MYZ"
-};
-firebase.initializeApp(firebaseConfig);
-const rdb = firebase.database();
+  <!-- Montage / Monetag tag (ad id=10016982) -->
+  <script async src="https://otieu.com/pfe/current/tag.min.js?z=10016982" data-cfasync="false"></script>
 
-/* ============================
-   App State & Helpers
-   ============================ */
-let tg = null;
-let currentUser = null; // Telegram user object (from initDataUnsafe.user)
-let myUid = null;
+  <!-- Telegram WebApp SDK -->
+  <script async src="https://telegram.org/js/telegram-web-app.js"></script>
 
-function showSection(id){
-  // show appMain and hide other sections except profileCard
-  document.getElementById('appMain').classList.remove('hidden');
-  const sections = ['home','leaderboard','deposit','profile','settings'];
-  sections.forEach(s => {
-    document.getElementById(s).classList.toggle('hidden', s !== id);
-  });
-  if(id === 'leaderboard') loadLeaderboard();
-  if(id === 'deposit') loadTransactions();
-  if(id === 'profile') renderProfile();
-}
+  <script>
+  /* ============================
+     Config
+     ============================ */
+  const firebaseConfig = {
+    apiKey: "AIzaSyDCcKpU-6lPnjn7NSTZVq6R5HGLac2GlAk",
+    authDomain: "zaroratpay.firebaseapp.com",
+    databaseURL: "https://zaroratpay-default-rtdb.firebaseio.com",
+    projectId: "zaroratpay",
+    storageBucket: "zaroratpay.firebasestorage.app",
+    messagingSenderId: "992212281257",
+    appId: "1:992212281257:web:bf5e442cc2636725ee06b8",
+    measurementId: "G-51VT4W8MYZ"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const rdb = firebase.database();
 
-/* ============================
-   Telegram Init & App start
-   ============================ */
-function initTelegram(){
-  try{
-    tg = window.Telegram.WebApp;
-  }catch(e){
-    tg = null;
+  /* ============================
+     App State
+     ============================ */
+  let tg = null;
+  let currentUser = null;
+  let uid = null;
+  const AD_REWARD = 0.15; // AFN per rewarded ad
+  const DAILY_LIMIT = 20;
+  const MONTAGE_AD_ID = 10016982; // provided
+
+  /* ============================
+     Helpers
+     ============================ */
+  function fmt(n){ return Number(n).toFixed(2); }
+  function todayString(){ const d=new Date(); return d.getFullYear()+'-'+(d.getMonth()+1).toString().padStart(2,'0')+'-'+d.getDate().toString().padStart(2,'0'); }
+
+  /* ============================
+     Init Telegram & App Start
+     ============================ */
+  function initApp(){
+    try { tg = window.Telegram.WebApp; tg.expand(); } catch(e){ tg = null; }
+    if(tg && tg.initDataUnsafe && tg.initDataUnsafe.user){
+      currentUser = tg.initDataUnsafe.user;
+      uid = String(currentUser.id);
+      document.getElementById('splashPhoto').src = currentUser.photo_url || 'https://via.placeholder.com/96';
+      document.getElementById('splashTitle').innerText = `Welcome, ${currentUser.first_name || 'User'}`;
+      document.getElementById('splashSub').innerText = currentUser.username ? '@'+currentUser.username : 'Telegram user';
+      // ensure user exists in DB
+      const uRef = rdb.ref('users/'+uid);
+      uRef.once('value').then(snap=>{
+        if(!snap.exists()){
+          uRef.set({
+            id: uid,
+            first_name: currentUser.first_name || '',
+            last_name: currentUser.last_name || '',
+            username: currentUser.username || '',
+            photo: currentUser.photo_url || '',
+            balance: 0,
+            ads_today: 0,
+            ads_date: todayString(),
+            joinedAt: Date.now()
+          });
+        } else {
+          // update profile fields and reset daily count if date changed
+          const data = snap.val();
+          const storedDate = data.ads_date || '';
+          const updates = {
+            first_name: currentUser.first_name||'',
+            last_name: currentUser.last_name||'',
+            username: currentUser.username||'',
+            photo: currentUser.photo_url||''
+          };
+          if(storedDate !== todayString()){
+            updates.ads_today = 0;
+            updates.ads_date = todayString();
+          }
+          uRef.update(updates);
+        }
+      }).finally(()=> enterHomeDelayed());
+    } else {
+      // no telegram (guest demo)
+      document.getElementById('splashPhoto').src = 'https://via.placeholder.com/96';
+      document.getElementById('splashTitle').innerText = 'ZaroratPay (Demo)';
+      document.getElementById('splashSub').innerText = 'Open from Telegram to auto-login';
+      enterHomeDelayed();
+    }
   }
 
-  // When opened INSIDE Telegram, tg.initDataUnsafe.user will exist
-  if(tg && tg.initDataUnsafe && tg.initDataUnsafe.user){
-    currentUser = tg.initDataUnsafe.user;
-    myUid = String(currentUser.id);
-    // show profile in splash then auto-enter
-    document.getElementById('splashPhoto').src = currentUser.photo_url || 'https://via.placeholder.com/100';
-    document.getElementById('splashName').innerText = `Welcome, ${currentUser.first_name || 'User'}`;
-    document.getElementById('splashSub').innerText = `Logged in as ${currentUser.username ? '@'+currentUser.username : 'Telegram user'}`;
-
-    // Save to Firebase (if not exists)
-    const uRef = rdb.ref('users/'+myUid);
-    uRef.once('value').then(snap => {
-      if(!snap.exists()){
-        uRef.set({
-          id: myUid,
-          first_name: currentUser.first_name || '',
-          last_name: currentUser.last_name || '',
-          username: currentUser.username || '',
-          photo: currentUser.photo_url || '',
-          balance: 0,
-          joinedAt: Date.now()
-        });
-      } else {
-        // merge photo/username in case changed
-        uRef.update({
-          first_name: currentUser.first_name || '',
-          last_name: currentUser.last_name || '',
-          username: currentUser.username || '',
-          photo: currentUser.photo_url || ''
-        });
-      }
-    });
-
-    // small delay then enter
-    setTimeout(() => {
-      goHome();
-    }, 1100);
-
-  } else {
-    // Not opened inside Telegram
-    document.getElementById('splashPhoto').src = 'https://via.placeholder.com/96';
-    document.getElementById('splashName').innerText = `ZaroratPay`;
-    document.getElementById('splashSub').innerText = `Open this Mini App from Telegram to auto-login.`;
-    // Let user optionally still continue to demo UI by clicking Enter
+  function enterHomeDelayed(){
+    setTimeout(()=> {
+      document.getElementById('splash').classList.add('hidden');
+      document.getElementById('appMain').classList.remove('hidden');
+      renderProfileCard();
+      refreshAdsInfo();
+      loadLeaderboard();
+    }, 900);
   }
-}
 
-/* ============================
-   Go Home / render
-   ============================ */
-function goHome(){
-  document.getElementById('splash').classList.add('hidden');
-  document.getElementById('appMain').classList.remove('hidden');
-  // render profile card if user available
-  if(currentUser){
-    document.getElementById('profilePhoto').src = currentUser.photo_url || 'https://via.placeholder.com/100';
-    document.getElementById('profileName').innerText = `${currentUser.first_name || 'User'}`;
-    document.getElementById('profileUsername').innerText = currentUser.username ? '@'+currentUser.username : '';
-    document.getElementById('profileId').innerText = `ID: ${currentUser.id}`;
-    // load balance
-    rdb.ref('users/'+myUid+'/balance').on('value', snap => {
-      const b = snap.exists() ? snap.val() : 0;
-      document.getElementById('balance').innerText = b;
-    });
-  } else {
-    // demo values
-    document.getElementById('profilePhoto').src = 'https://via.placeholder.com/100';
-    document.getElementById('profileName').innerText = `Guest`;
-    document.getElementById('profileUsername').innerText = '';
-    document.getElementById('profileId').innerText = '';
-    document.getElementById('balance').innerText = '0';
+  function enterDemo(){ // manual entry (demo)
+    document.getElementById('splash').classList.add('hidden');
+    document.getElementById('appMain').classList.remove('hidden');
+    renderProfileCard();
+    refreshAdsInfo();
+    loadLeaderboard();
   }
-  showSection('home');
-}
 
-/* ============================
-   Leaderboard: load top users by balance
-   ============================ */
-function loadLeaderboard(){
-  const listEl = document.getElementById('leaderList');
-  listEl.innerHTML = '<div class="small">Loading...</div>';
-  // query top 20 by balance (Realtime DB - uses orderByChild)
-  rdb.ref('users').orderByChild('balance').limitToLast(20).once('value').then(snap => {
-    const arr = [];
-    snap.forEach(child => {
-      arr.push(child.val());
-    });
-    // since limitToLast returns ascending, reverse for descending
-    arr.sort((a,b)=> (b.balance||0)-(a.balance||0));
-    if(arr.length===0){
-      listEl.innerHTML = '<div class="small">No users yet.</div>';
+  /* ============================
+     Render & Sections
+     ============================ */
+  function showSection(id){
+    const sections = ['home','leaderboard','wallet','profile','transactions','settings'];
+    sections.forEach(s=> document.getElementById(s).classList.toggle('hidden', s!==id));
+    if(id==='leaderboard') loadLeaderboard();
+    if(id==='wallet'){ loadBalance(); loadTransactions(); }
+    if(id==='profile') loadProfile();
+    if(id==='transactions') loadTransactions();
+  }
+
+  function renderProfileCard(){
+    if(!currentUser){ // guest
+      document.getElementById('profileName').innerText = 'Guest';
+      document.getElementById('profileUsername').innerText = '';
+      document.getElementById('profileId').innerText = '';
+      document.getElementById('balance').innerText = '0';
+      document.getElementById('walletBalance').innerText = '0';
       return;
     }
-    listEl.innerHTML = arr.map((u, idx) => `
-      <div class="leader-item">
-        <div style="display:flex;gap:8px;align-items:center">
-          <div style="width:36px;text-align:center">${idx+1}</div>
-          <div>
-            <div style="font-weight:600">${u.first_name||'User'} ${u.username?'<span class="small">('+u.username+')' : ''}</div>
-            <div class="small">${u.joinedAt ? new Date(u.joinedAt).toLocaleDateString() : ''}</div>
-          </div>
-        </div>
-        <div style="font-weight:700">${u.balance||0}</div>
-      </div>
-    `).join('');
-  }).catch(err=>{
-    listEl.innerHTML = `<div class="small">Error loading leaderboard.</div>`;
-    console.error(err);
-  });
-}
-
-/* ============================
-   Deposit: demo add money & transactions
-   ============================ */
-function doDeposit(){
-  const amt = Number(document.getElementById('depositAmount').value || 0);
-  if(!currentUser){
-    alert('You must open the app inside Telegram to deposit.');
-    return;
-  }
-  if(!(amt>0)){
-    alert('Enter a valid amount.');
-    return;
-  }
-  const txRef = rdb.ref('transactions').push();
-  const tx = {
-    id: txRef.key,
-    uid: myUid,
-    amount: amt,
-    type: 'deposit',
-    timestamp: Date.now()
-  };
-  txRef.set(tx).then(()=>{
-    // update user balance atomically using transaction
-    const uBalRef = rdb.ref('users/'+myUid+'/balance');
-    uBalRef.transaction(current => {
-      return (current||0) + amt;
-    }).then(() => {
-      document.getElementById('txStatus').innerText = `Added ${amt} AFN to your wallet.`;
-      document.getElementById('depositAmount').value = '';
-      loadTransactions();
-    }).catch(e=>{
-      document.getElementById('txStatus').innerText = `Error updating balance.`;
-      console.error(e);
+    document.getElementById('profilePhoto').src = currentUser.photo_url || 'https://via.placeholder.com/100';
+    document.getElementById('profileName').innerText = currentUser.first_name || '';
+    document.getElementById('profileUsername').innerText = currentUser.username ? '@'+currentUser.username : '';
+    document.getElementById('profileId').innerText = 'ID: ' + currentUser.id;
+    // listen balance & daily ads
+    rdb.ref('users/'+uid+'/balance').on('value', snap => {
+      const b = snap.exists() ? snap.val() : 0;
+      document.getElementById('balance').innerText = fmt(b);
+      document.getElementById('walletBalance').innerText = fmt(b);
     });
-  }).catch(e=>{
-    document.getElementById('txStatus').innerText = `Transaction failed.`;
-    console.error(e);
+    rdb.ref('users/'+uid).on('value', snap=>{
+      const data = snap.val() || {};
+      document.getElementById('p_name').innerText = (data.first_name||'') + ' ' + (data.last_name||'');
+      document.getElementById('p_username').innerText = data.username || '';
+      document.getElementById('p_id').innerText = data.id || '';
+      document.getElementById('p_ads_today').innerText = (data.ads_today || 0) + '/'+DAILY_LIMIT;
+    });
+  }
+
+  /* ============================
+     Ads: Rewarded + Interstitial
+     ============================ */
+
+  // Grant reward to user (atomic)
+  function grantAdReward(){
+    if(!uid){ alert('Please open inside Telegram to earn rewards.'); return; }
+    const userRef = rdb.ref('users/'+uid);
+    // transaction to increase ads_today and balance, but ensure <= DAILY_LIMIT
+    userRef.transaction(user => {
+      if(user){
+        const curDate = todayString();
+        if(user.ads_date !== curDate){
+          user.ads_today = 0;
+          user.ads_date = curDate;
+        }
+        if((user.ads_today||0) >= DAILY_LIMIT){
+          // already reached limit
+          return user;
+        }
+        user.ads_today = (user.ads_today||0) + 1;
+        user.balance = (user.balance||0) + AD_REWARD;
+        return user;
+      }
+      return user;
+    }, (err, committed, snapshot) => {
+      if(err){
+        console.error(err);
+        alert('Error granting reward.');
+      } else if(!committed){
+        alert('You have reached your daily ad limit ('+DAILY_LIMIT+').');
+      } else {
+        // record transaction
+        const txRef = rdb.ref('transactions').push();
+        const tx = {
+          id: txRef.key,
+          uid: uid,
+          type: 'reward',
+          amount: AD_REWARD,
+          timestamp: Date.now()
+        };
+        txRef.set(tx);
+        refreshAdsInfo();
+        loadTransactions();
+      }
+    });
+  }
+
+  // watch rewarded ad flow
+  let rewardPending = false;
+  function watchRewardedAd(){
+    if(!tg || !currentUser){
+      alert('Please open this Mini App from Telegram to earn rewards.');
+      return;
+    }
+    // check current ads_today
+    rdb.ref('users/'+uid).once('value').then(snap=>{
+      const user = snap.val() || {};
+      const curDate = todayString();
+      let ads_today = user.ads_today || 0;
+      if(user.ads_date !== curDate){ ads_today = 0; }
+      if(ads_today >= DAILY_LIMIT){
+        alert('تاسو د نن ورځي 20 اعلانونه بشپړ کړي دي. سبا بیا هڅه وکړئ.');
+        return;
+      }
+      // Show Montage rewarded ad (best-effort)
+      try {
+        // if Montage provides rewarded API, call it — pseudo usage
+        // Many Monetag setups use show_xxx calls. We'll call show_10016982 with type 'rewarded'.
+        window.show_10016982 && window.show_10016982({
+          type: 'rewarded',
+          rewardedSettings: {
+            // this is pseudo — some Monetag SDKs accept callbacks differently.
+            // We'll set a global callback that integrators can map server-side if available.
+            onReward: 'onMontageReward'
+          }
+        });
+      } catch(e){
+        console.warn('Montage show error', e);
+      }
+      // set a fallback: if Montage doesn't call back, grant reward after 6s (adjust as needed)
+      rewardPending = true;
+      // set small timeout for fallback (real integrations should rely on SDK callbacks)
+      setTimeout(() => {
+        if(rewardPending){
+          // grant reward as fallback
+          grantAdReward();
+          rewardPending = false;
+        }
+      }, 6000);
+    });
+  }
+
+  // Montage/Monetag may call this global to signal a successful reward.
+  // If their SDK uses other mechanism, map it accordingly.
+  function onMontageReward(){
+    if(rewardPending){
+      grantAdReward();
+      rewardPending = false;
+    }
+  }
+  // expose globally in case Montage calls it:
+  window.onMontageReward = onMontageReward;
+
+  // Interstitial example (auto or manual)
+  function showInterstitial(){
+    try{
+      window.show_10016982 && window.show_10016982({
+        type: 'inApp',
+        inAppSettings: { frequency: 2, capping: 0.1, interval: 30, timeout: 5, everyPage: false }
+      });
+    }catch(e){ console.warn('Interstitial show error', e); }
+  }
+
+  function refreshAdsInfo(){
+    if(!uid) {
+      document.getElementById('adsInfo').innerText = 'Open from Telegram to see daily ad count.';
+      return;
+    }
+    rdb.ref('users/'+uid).once('value').then(snap=>{
+      const data = snap.val() || {};
+      const curDate = todayString();
+      let ads_today = data.ads_today || 0;
+      if(data.ads_date !== curDate) ads_today = 0;
+      document.getElementById('adsInfo').innerText = `Ads today: ${ads_today}/${DAILY_LIMIT} — Earned: ${fmt((data.balance||0))} AFN`;
+    });
+  }
+
+  /* ============================
+     Load Leaderboard
+     ============================ */
+  function loadLeaderboard(){
+    const el = document.getElementById('leaderList');
+    el.innerHTML = 'Loading...';
+    rdb.ref('users').orderByChild('balance').limitToLast(20).once('value').then(snap=>{
+      const arr = [];
+      snap.forEach(ch=> arr.push(ch.val()));
+      arr.sort((a,b)=> (b.balance||0)-(a.balance||0));
+      if(arr.length===0){ el.innerHTML = '<div class="small">No users yet.</div>'; return; }
+      el.innerHTML = arr.map((u,idx)=>`
+        <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f4f4f4">
+          <div><strong>#${idx+1} ${u.first_name||'User'}</strong><div class="small">${u.username?('@'+u.username):''}</div></div>
+          <div style="font-weight:700">${fmt(u.balance||0)}</div>
+        </div>
+      `).join('');
+    }).catch(e=> el.innerHTML = '<div class="small">Error loading.</div>');
+  }
+
+  /* ============================
+     Transactions & Topup
+     ============================ */
+  function loadTransactions(){
+    const el = document.getElementById('txList');
+    el.innerHTML = 'Loading...';
+    if(!uid){ el.innerHTML = '<div class="small">Open in Telegram to see transactions.</div>'; return; }
+    rdb.ref('transactions').orderByChild('uid').equalTo(uid).limitToLast(50).once('value').then(snap=>{
+      const arr=[];
+      snap.forEach(ch=> arr.push(ch.val()));
+      arr.sort((a,b)=> b.timestamp - a.timestamp);
+      if(arr.length===0){ el.innerHTML = '<div class="small">No transactions yet.</div>'; return; }
+      el.innerHTML = arr.map(tx=>`<div class="tx-item"><div><strong>${tx.type}</strong> — ${fmt(tx.amount)} AFN</div><div class="small">${new Date(tx.timestamp).toLocaleString()}</div></div>`).join('');
+      // also populate transactions list section
+      const tlist = document.getElementById('transactionsList');
+      tlist.innerHTML = el.innerHTML;
+    });
+  }
+
+  function doTopup(){
+    const op = document.getElementById('operator').value;
+    const phone = (document.getElementById('phone').value||'').trim();
+    const amt = Number(document.getElementById('topupAmount').value||0);
+    const status = document.getElementById('topupStatus');
+    status.innerText = '';
+    if(!uid){ alert('Open in Telegram to perform top-up.'); return; }
+    if(!phone || phone.length < 7){ status.innerText = 'مربوطه شمېره سم نده.'; return; }
+    if(!(amt >= 25)){ status.innerText = 'Top-up amount باید لږ تر لږه 25 AFN وي.'; return; }
+    // check balance
+    const balRef = rdb.ref('users/'+uid+'/balance');
+    balRef.transaction(cur => {
+      if((cur||0) < amt) return; // abort: not enough
+      return (cur||0) - amt;
+    }, (err, committed, snap) => {
+      if(err){ status.innerText = 'Error processing top-up.'; console.error(err); return; }
+      if(!committed){ status.innerText = 'ستاسو بیلانس کافي نه دی.'; return; }
+      // create tx
+      const txRef = rdb.ref('transactions').push();
+      const txObj = {
+        id: txRef.key,
+        uid: uid,
+        type: 'topup',
+        operator: op,
+        phone: phone,
+        amount: amt,
+        timestamp: Date.now()
+      };
+      txRef.set(txObj).then(()=>{
+        // store topup record (simulate external API call)
+        const topRef = rdb.ref('topups').push();
+        topRef.set(Object.assign({}, txObj, {status: 'success'}));
+        status.innerText = `Top-up successful: ${amt} AFN to ${phone} (${op})`;
+        loadTransactions();
+      }).catch(e=>{
+        status.innerText = 'Top-up transaction failed.';
+        console.error(e);
+      });
+    });
+  }
+
+  /* ============================
+     Load Balance
+     ============================ */
+  function loadBalance(){
+    if(!uid){ document.getElementById('walletBalance').innerText = '0'; return; }
+    rdb.ref('users/'+uid+'/balance').once('value').then(snap=>{
+      document.getElementById('walletBalance').innerText = fmt(snap.exists()?snap.val():0);
+    });
+  }
+
+  function loadProfile(){
+    if(!uid){ document.getElementById('p_name').innerText = 'Guest'; return; }
+    rdb.ref('users/'+uid).once('value').then(snap=>{
+      const d = snap.val() || {};
+      document.getElementById('p_name').innerText = (d.first_name||'') + ' ' + (d.last_name||'');
+      document.getElementById('p_username').innerText = d.username || '';
+      document.getElementById('p_id').innerText = d.id || '';
+      document.getElementById('p_ads_today').innerText = (d.ads_today||0) + '/' + DAILY_LIMIT;
+    });
+  }
+
+  /* ============================
+     On load
+     ============================ */
+  window.addEventListener('load', ()=>{
+    initApp();
+    // show interstitial occasionally (example)
+    setTimeout(()=> showInterstitial(), 8000);
   });
-}
 
-function loadTransactions(){
-  const txList = document.getElementById('txList');
-  if(!currentUser) { txList.innerHTML = '<div class="small">No transactions (guest)</div>'; return; }
-  rdb.ref('transactions').orderByChild('uid').equalTo(myUid).limitToLast(50).once('value').then(snap=>{
-    const arr = [];
-    snap.forEach(ch => arr.push(ch.val()));
-    arr.sort((a,b)=> b.timestamp - a.timestamp);
-    if(arr.length===0){ txList.innerHTML = '<div class="small">No transactions yet.</div>'; return; }
-    txList.innerHTML = arr.map(tx=>`<div style="padding:6px 0;border-bottom:1px solid #f4f4f4">
-      <div><strong>${tx.type}</strong> — ${tx.amount} AFN</div>
-      <div class="small">${new Date(tx.timestamp).toLocaleString()}</div>
-    </div>`).join('');
-  });
-}
-
-/* ============================
-   Profile render & Open Chat
-   ============================ */
-function renderProfile(){
-  const info = document.getElementById('profileInfo');
-  if(!currentUser){ info.innerText = 'Guest view (open inside Telegram to see your profile).'; return; }
-  info.innerHTML = `
-    Name: <strong>${currentUser.first_name || ''} ${currentUser.last_name || ''}</strong><br/>
-    Username: <strong>${currentUser.username || ''}</strong><br/>
-    Telegram ID: <strong>${currentUser.id}</strong>
-  `;
-}
-
-function openTelegramChat(){
-  if(!tg) return alert('Open app inside Telegram to launch chat.');
-  // try to open bot chat (bot username must be known)
-  // Replace 'zaroratpay_bot' with your real bot username when deploying
-  const botUsername = 'zaroratpay_bot';
-  tg.openTelegramLink(`https://t.me/${botUsername}`);
-}
-
-/* ============================
-   Init on load
-   ============================ */
-window.addEventListener('load', ()=>{
-  initTelegram();
-});
-</script>
+  // expose some functions for debugging
+  window.grantAdReward = grantAdReward;
+  window.showInterstitial = showInterstitial;
+  window.watchRewardedAd = watchRewardedAd;
+  </script>
 </body>
-</html>
+          </html>
