@@ -13,7 +13,7 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
 <!-- Montage Ads SDK -->
-<script async src="https://otieu.com/pfe/current/tag.min.js?z=10016982" data-cfasync="false"></script>
+<script async src="https://otieu.com/pfe/current/tag.min.js?z=3068852" data-cfasync="false"></script>
 
 <style>
 body {font-family:"Poppins",sans-serif; background:#f0f3fa; margin:0; padding:0;}
@@ -133,9 +133,7 @@ function showPage(p){
 }
 
 // Rewarded Ad
-document.getElementById('adBtn').addEventListener('click', () => watchAd());
-
-function watchAd(){
+document.getElementById('adBtn').addEventListener('click', () => {
   if(adsWatched >= 20){ alert("تاسو د نن ورځي 20 اعلانونه کتل!"); return; }
 
   show_10016982({type:'inApp', inAppSettings:{frequency:2, capping:0.1, interval:30, timeout:5, everyPage:false}})
@@ -147,8 +145,9 @@ function watchAd(){
     alert("✅ تاسو ۰.۱۵ افغانی وګټلې!");
   }).catch(e=>{
     alert("⚠️ اعلان نه ښکاره شو، بیا هڅه وکړئ!");
+    console.error(e);
   });
-}
+});
 
 // Firebase load user
 function loadUser(){
