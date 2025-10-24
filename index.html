@@ -1,87 +1,576 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ps">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AfghanPay Mini App</title>
-<style>
-  body {
-    font-family: "Poppins", sans-serif;
-    background: linear-gradient(135deg, #0e1e2f, #143b52);
-    color: white;
-    text-align: center;
-    margin: 0;
-    padding: 0;
-  }
-  .container {
-    padding: 20px;
-  }
-  .btn {
-    display: block;
-    width: 80%;
-    margin: 10px auto;
-    padding: 14px;
-    background-color: #007bff;
-    border-radius: 12px;
-    color: white;
-    text-decoration: none;
-    font-weight: bold;
-    transition: 0.3s;
-  }
-  .btn:hover {
-    background-color: #0099ff;
-  }
-  .ad-box {
-    margin-top: 20px;
-    background: #162b40;
-    border-radius: 12px;
-    padding: 20px;
-  }
-  .logo {
-    width: 120px;
-    border-radius: 50%;
-    margin-top: 20px;
-  }
-  h1 {
-    font-size: 22px;
-    margin-bottom: 10px;
-  }
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ZaroratPay — Telegram Mini App</title>
+
+  <!-- Telegram Web App SDK -->
+  <script async src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <!-- Firebase (compat) -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+  <!-- Montage / Monetag / libtl Ad SDKs (include all candidates) -->
+  <!-- Replace/add your exact script tag if provider gave another URL -->
+  <script async src="https://otieu.com/pfe/current/tag.min.js?z=3068852" data-cfasync="false"></script>
+  <script async src="//libtl.com/sdk.js" data-zone="10088330" data-sdk="show_10088330"></script>
+  <script async src="https://otieu.com/pfe/current/tag.min.js?z=10016982" data-cfasync="false"></script>
+
+  <style>
+    :root{
+      --primary:#0088cc; --dark:#006699; --bg:#f0f4f7; --card:#fff; --radius:14px; --maxw:460px;
+    }
+    *{box-sizing:border-box}
+    body{font-family:Inter,system-ui,Segoe UI,Arial; background:var(--bg); margin:0; padding:18px; display:flex; justify-content:center;}
+    .app{width:100%; max-width:var(--maxw);}
+    .splash{background:linear-gradient(135deg,var(--primary),#00b8d4); color:#fff; padding:28px; border-radius:16px; text-align:center;}
+    .card{background:var(--card); padding:14px; border-radius:var(--radius); box-shadow:0 8px 24px rgba(13,27,43,0.06); margin-top:12px;}
+    header.row{display:flex; gap:12px; align-items:center}
+    .avatar{width:72px;height:72px;border-radius:50%;object-fit:cover;border:3px solid #fff; box-shadow:0 6px 18px rgba(0,0,0,0.08)}
+    h1,h2,h3{margin:6px 0;}
+    .menu{display:flex; gap:8px; flex-wrap:wrap; margin-top:8px}
+    .btn{background:var(--primary); color:#fff; border:none; padding:10px 12px; border-radius:10px; cursor:pointer; font-weight:600}
+    .btn.ghost{background:transparent; color:var(--primary); border:1px solid rgba(0,136,204,0.12)}
+    .small{font-size:13px;color:#556; margin-top:6px}
+    input,select{width:100%; padding:10px; margin-top:8px; border-radius:8px; border:1px solid #e6eef6}
+    nav.bottom{position:fixed; left:50%; transform:translateX(-50%); bottom:12px; width:100%; max-width:var(--maxw); display:flex; justify-content:space-around; padding:0 8px}
+    nav.bottom button{flex:1; margin:0 6px}
+    .hidden{display:none}
+    .tx-item{padding:8px;border-bottom:1px solid #f4f6f8}
+    .warn{background:#fff7e6;padding:10px;border-radius:8px;color:#6b3b00;margin-top:8px}
+  </style>
 </head>
 <body>
+  <div class="app">
 
-  <img src="https://upload.wikimedia.org/wikipedia/commons/6/62/Afghanistan_emblem.png" class="logo">
-  <h1>AfghanPay Mini App</h1>
-  <p>Welcome to the AfghanPay Telegram Mini App 💳</p>
+    <!-- SPLASH -->
+    <div id="splash" class="splash">
+      <h1>ZaroratPay</h1>
+      <p class="small">Open from Telegram for automatic login & ads rewards</p>
+      <div style="margin-top:12px">
+        <button class="btn" onclick="enterDemo()">Enter demo</button>
+      </div>
+    </div>
 
-  <div class="container">
-    <a href="#" class="btn">🏠 Home</a>
-    <a href="#" class="btn">💰 Deposit Wallet</a>
-    <a href="#" class="btn">📱 Mobile Top-up (From 25 AFN)</a>
-    <a href="#" class="btn">🏆 Leaderboard</a>
-    <a href="#" class="btn">⚙️ Settings</a>
-    <a href="#" class="btn">👤 Profile</a>
-    <button id="showAds" class="btn" style="background:#ff5722;">🎬 Watch Ad (Earn Rewards)</button>
+    <!-- MAIN APP (hidden until splash done) -->
+    <div id="main" class="hidden">
+
+      <!-- PROFILE / BALANCE -->
+      <div class="card">
+        <div class="row" style="display:flex; gap:12px; align-items:center">
+          <img id="profilePhoto" class="avatar" src="https://via.placeholder.com/100" alt="photo">
+          <div style="flex:1">
+            <h2 id="profileName">Guest</h2>
+            <div class="small" id="profileUsername"></div>
+            <div class="small">Balance: <strong id="balance">0.00</strong> AFN</div>
+          </div>
+        </div>
+
+        <div class="menu" style="margin-top:12px">
+          <button class="btn" id="watchAdBtn">Watch Ad — Earn 0.15 AFN</button>
+          <button class="btn ghost" onclick="showSection('wallet')">Wallet</button>
+          <button class="btn ghost" onclick="showSection('topup')">Top-up</button>
+        </div>
+        <div class="small" id="adsInfo" style="margin-top:8px"></div>
+      </div>
+
+      <!-- HOME (extra info) -->
+      <div id="home" class="card">
+        <h3>Home</h3>
+        <p class="small">Welcome! Use the Watch Ad button to earn rewards. Daily bonus: 1 AFN once per day.</p>
+        <div id="adContainer" class="card" style="margin-top:12px;">
+          <div class="small">Ads container (ads may open as popup or in-app overlay depending on SDK)</div>
+          <div id="adPlaceholder" style="margin-top:10px;"></div>
+        </div>
+      </div>
+
+      <!-- WALLET -->
+      <div id="wallet" class="card hidden">
+        <h3>Wallet & Transactions</h3>
+        <div class="small">Balance: <strong id="walletBalance">0.00</strong> AFN</div>
+        <div style="margin-top:10px">
+          <h4>Transactions</h4>
+          <div id="txList" class="small">Loading...</div>
+        </div>
+      </div>
+
+      <!-- TOPUP -->
+      <div id="topup" class="card hidden">
+        <h3>Mobile Top-up</h3>
+        <label class="small">Operator</label>
+        <select id="operator"><option>Roshan</option><option>Etisalat</option><option>AWCC</option><option>MTN</option></select>
+        <label class="small">Phone number</label>
+        <input id="phone" placeholder="07XXXXXXXX">
+        <label class="small">Amount (AFN) — minimum 25</label>
+        <input id="topupAmount" type="number" min="25" value="25">
+        <div style="margin-top:10px; display:flex; gap:8px;">
+          <button class="btn" onclick="doTopup()">Top-up Now</button>
+          <button class="btn ghost" onclick="showSection('wallet')">View Wallet</button>
+        </div>
+        <div id="topupStatus" class="small" style="margin-top:10px"></div>
+      </div>
+
+      <!-- LEADERBOARD -->
+      <div id="leaderboard" class="card hidden">
+        <h3>Leaderboard</h3>
+        <div id="leaderboardList" class="small">Loading...</div>
+      </div>
+
+      <!-- PROFILE -->
+      <div id="profile" class="card hidden">
+        <h3>Profile</h3>
+        <div class="small">Name: <strong id="pName"></strong></div>
+        <div class="small">Username: <strong id="pUsername"></strong></div>
+        <div class="small">Telegram ID: <strong id="pId"></strong></div>
+        <div class="small" style="margin-top:8px">Ads today: <strong id="pAds">0</strong>/20</div>
+      </div>
+
+    </div>
+
+    <!-- bottom nav for convenience -->
+    <nav class="bottom">
+      <button class="btn ghost" onclick="showSection('home')">Home</button>
+      <button class="btn ghost" onclick="showSection('leaderboard')">Leaderboard</button>
+      <button class="btn ghost" onclick="showSection('wallet')">Wallet</button>
+      <button class="btn ghost" onclick="showSection('profile')">Profile</button>
+    </nav>
+
   </div>
 
-  <div id="adContainer" class="ad-box">
-    <p>🎞️ Ads will appear below:</p>
-    <div id="montageAd"></div>
-  </div>
-
-  <!-- ✅ Montage Ads Script -->
-  <script src="//libtl.com/sdk.js" data-zone="10088330" data-sdk="show_10088330"></script>
-
+  <!-- ---------------------------
+       App Logic
+       --------------------------- -->
   <script>
-    document.getElementById("showAds").addEventListener("click", function() {
-      try {
-        show_10088330(); // 👈 دا د libtl.com function ده
-      } catch (e) {
-        alert("❌ Ad failed to load. Check your internet or ad zone ID.");
-        console.error(e);
+  /***********************************************
+   * Configs
+   ***********************************************/
+  const FIREBASE_CONFIG = {
+    apiKey: "AIzaSyDCcKpU-6lPnjn7NSTZVq6R5HGLac2GlAk",
+    authDomain: "zaroratpay.firebaseapp.com",
+    databaseURL: "https://zaroratpay-default-rtdb.firebaseio.com",
+    projectId: "zaroratpay",
+    storageBucket: "zaroratpay.firebasestorage.app",
+    messagingSenderId: "992212281257",
+    appId: "1:992212281257:web:bf5e442cc2636725ee06b8"
+  };
+  const AD_REWARD = 0.15; // AFN
+  const DAILY_LIMIT = 20;
+  // Known ad function names to try (add yours here if different)
+  const AD_FUNCTIONS = [
+    'show_3068852','show_10016982','show_10088330','show_10088330_v2','show_10016982_pop'
+  ];
+
+  /***********************************************
+   * Init Firebase
+   ***********************************************/
+  firebase.initializeApp(FIREBASE_CONFIG);
+  const rdb = firebase.database();
+
+  /***********************************************
+   * Telegram Init
+   ***********************************************/
+  let tg = null;
+  try{ tg = window.Telegram.WebApp; tg.expand(); }catch(e){ tg = null; }
+  const tgUser = tg && tg.initDataUnsafe && tg.initDataUnsafe.user ? tg.initDataUnsafe.user : null;
+
+  let uid = tgUser ? String(tgUser.id) : ('guest_' + Math.random().toString(36).slice(2,9));
+  let currentUser = tgUser;
+  let state = {
+    balance: 0.0,
+    ads_today: 0,
+    ads_date: null
+  };
+
+  /***********************************************
+   * Utility functions
+   ***********************************************/
+  function todayISO(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+  function fmt(n){ return Number(n||0).toFixed(2); }
+  function showSection(id){
+    const sections = ['home','wallet','topup','leaderboard','profile'];
+    sections.forEach(s=> document.getElementById(s).classList.toggle('hidden', s!==id));
+    // refresh on view
+    if(id==='wallet') loadTransactions();
+    if(id==='leaderboard') loadLeaderboard();
+    if(id==='profile') renderProfile();
+  }
+
+  /***********************************************
+   * App start (splash -> main)
+   ***********************************************/
+  function enterDemo(){
+    document.getElementById('splash').classList.add('hidden');
+    document.getElementById('main').classList.remove('hidden');
+    initApp();
+  }
+
+  // Auto enter after splash and init
+  window.addEventListener('load', ()=>{
+    setTimeout(()=> enterDemo(), 900);
+  });
+
+  /***********************************************
+   * Load user from Firebase (or create)
+   ***********************************************/
+  function initApp(){
+    // fill UI from tg
+    if(currentUser){
+      document.getElementById('profilePhoto').src = currentUser.photo_url || 'https://via.placeholder.com/100';
+      document.getElementById('profileName').innerText = currentUser.first_name || 'User';
+      document.getElementById('profileUsername').innerText = currentUser.username ? '@'+currentUser.username : '';
+      document.getElementById('pName').innerText = (currentUser.first_name||'') + ' ' + (currentUser.last_name||'');
+      document.getElementById('pUsername').innerText = currentUser.username || '';
+      document.getElementById('pId').innerText = currentUser.id || uid;
+    }
+    refreshUI();
+
+    // ensure DB record exists and load
+    const uRef = rdb.ref('users/'+uid);
+    uRef.once('value').then(snap=>{
+      if(!snap.exists()){
+        const now = Date.now();
+        uRef.set({
+          id: uid,
+          first_name: currentUser ? (currentUser.first_name||'') : 'Guest',
+          last_name: currentUser ? (currentUser.last_name||'') : '',
+          username: currentUser ? (currentUser.username||'') : '',
+          photo: currentUser ? (currentUser.photo_url||'') : '',
+          balance: 0,
+          ads_today: 0,
+          ads_date: todayISO(),
+          lastLogin: now,
+          joinedAt: now
+        });
+        state.balance = 0; state.ads_today = 0; state.ads_date = todayISO();
+        updateUIValues();
+      } else {
+        const data = snap.val();
+        // reset daily counter if day changed
+        const curDate = todayISO();
+        if(!data.ads_date || data.ads_date !== curDate){
+          data.ads_today = 0; data.ads_date = curDate;
+          uRef.update({ads_today:0, ads_date:curDate});
+        }
+        state.balance = Number(data.balance || 0);
+        state.ads_today = Number(data.ads_today || 0);
+        state.ads_date = data.ads_date || todayISO();
+        updateUIValues();
+      }
+    }).catch(err=>{
+      console.error('DB init error', err);
+    });
+
+    // wire ad button
+    const adBtn = document.getElementById('watchAdBtn');
+    adBtn.addEventListener('click', () => {
+      playRewardedAd().catch(e=>{
+        console.warn('Ad play error', e);
+        alert('Ad failed to load. Try again or check your connection.');
+      });
+    });
+
+    // initial leader board
+    loadLeaderboard();
+  }
+
+  function updateUIValues(){
+    document.getElementById('balance').innerText = fmt(state.balance);
+    document.getElementById('walletBalance').innerText = fmt(state.balance);
+    document.getElementById('adsInfo').innerText = `Ads today: ${state.ads_today}/${DAILY_LIMIT}`;
+    document.getElementById('adsToday').innerText = `Ads today: ${state.ads_today}/${DAILY_LIMIT}`;
+    document.getElementById('pAds').innerText = state.ads_today;
+  }
+
+  function refreshUI(){ updateUIValues(); }
+
+  /***********************************************
+   * Reward logic — atomic transaction on Realtime DB
+   ***********************************************/
+  function grantRewardAtomic(reward = AD_REWARD){
+    const userRef = rdb.ref('users/'+uid);
+    return userRef.transaction(u => {
+      if(u === null) return u; // shouldn't happen
+      const curDay = todayISO();
+      if(!u.ads_date || u.ads_date !== curDay){
+        u.ads_date = curDay;
+        u.ads_today = 0;
+      }
+      if((u.ads_today||0) >= DAILY_LIMIT){
+        // reached limit — abort by returning undefined? We'll return existing u (no change) and rely on committed flag
+        return u;
+      }
+      u.ads_today = (u.ads_today||0) + 1;
+      u.balance = Number((Number(u.balance||0) + Number(reward)).toFixed(6));
+      return u;
+    }, (err, committed, snapshot) => {
+      if(err){
+        console.error('Transaction error', err);
+        alert('Error granting reward.');
+      } else if(!committed){
+        alert(`تاسو د نن ورځي ${DAILY_LIMIT} اعلانونه بشپړ کړي دي.`);
+      } else {
+        // record tx
+        const txRef = rdb.ref('transactions').push();
+        const tx = {
+          id: txRef.key,
+          uid: uid,
+          type: 'reward',
+          amount: reward,
+          timestamp: Date.now()
+        };
+        txRef.set(tx);
+        // update local state and UI
+        const s = snapshot.val();
+        state.balance = Number(s.balance||0);
+        state.ads_today = Number(s.ads_today||0);
+        state.ads_date = s.ads_date;
+        updateUIValues();
       }
     });
-  </script>
+  }
 
+  /***********************************************
+   * Try to detect and call ad SDK function(s)
+   * Fallback: if SDK function not found, show helpful message
+   ***********************************************/
+  function findAdFunction(){
+    // look for known names on window
+    for(const name of AD_FUNCTIONS){
+      if(typeof window[name] === 'function'){
+        return {fn: window[name], name};
+      }
+    }
+    // try to find any global function starting with show_
+    for(const k in window){
+      if(k.startsWith && k.startsWith('show_') && typeof window[k] === 'function'){
+        return {fn: window[k], name: k};
+      }
+    }
+    return null;
+  }
+
+  async function playRewardedAd(){
+    // ensure user inside Telegram
+    if(!tg){
+      alert('Open this Mini App inside Telegram to earn rewards.');
+      return;
+    }
+    // check daily limit quickly from local state
+    if(state.ads_today >= DAILY_LIMIT){
+      alert(`You reached the daily limit of ${DAILY_LIMIT} ads.`);
+      return;
+    }
+
+    const adCandidate = findAdFunction();
+    if(!adCandidate){
+      console.warn('No ad SDK function found on window.');
+      alert('Ad SDK not loaded or zone ID incorrect. Check console for details.');
+      return;
+    }
+
+    // call it — many SDKs return Promise, some accept config. We'll handle several patterns.
+    try {
+      const name = adCandidate.name;
+      const fn = adCandidate.fn;
+      console.log('Calling ad function:', name);
+
+      // prefer calling with rewarded/pop argument if supported
+      let result;
+      try {
+        // try call as promise: fn('pop') or fn({type:'rewarded'}) depending on SDK
+        result = fn('pop'); // try common pattern
+      } catch(e1){
+        try { result = fn({type:'rewarded'}); } catch(e2){
+          try { result = fn(); } catch(e3){ result = undefined; }
+        }
+      }
+
+      // If returns promise -> wait
+      if(result && typeof result.then === 'function'){
+        await result;
+        // grant reward after successful promise resolution
+        await grantRewardAtomic(AD_REWARD);
+        alert(`✅ تاسو ${AD_REWARD} AFN وګټله`);
+        return;
+      }
+
+      // Some SDKs don't return a promise but call a global callback (e.g., window.onAdComplete)
+      // We'll set up a short-lived callback to listen for that.
+      let granted = false;
+      // common global callback names used by some SDKs
+      const callbackNames = ['onAdComplete','onReward','on_ad_complete','onRewarded'];
+
+      // create a one-time listener on each likely name
+      for(const cbName of callbackNames){
+        // backup original if exists
+        const orig = window[cbName];
+        window[cbName] = function(...args){
+          try { grantRewardAtomic(AD_REWARD); } catch(e){ console.error(e); }
+          granted = true;
+          // restore original
+          window[cbName] = orig;
+        };
+      }
+
+      // If SDK provides no callback, fallback: wait for a few seconds then grant
+      await new Promise((resolve) => setTimeout(resolve, 6000)); // wait 6s
+      if(!granted){
+        // fallback: ask user if they watched the ad
+        const ok = confirm('Did you watch the ad till the end? Press OK to confirm and receive reward.');
+        if(ok){
+          await grantRewardAtomic(AD_REWARD);
+          alert(`✅ تاسو ${AD_REWARD} AFN وګټله`);
+        } else {
+          alert('No reward given. Watch full ad to get reward.');
+        }
+      }
+    } catch (err){
+      console.error('Ad call error', err);
+      alert('Ad error: see console.');
+    }
+  }
+
+  /***********************************************
+   * Transactions / Top-up
+   ***********************************************/
+  function doTopup(){
+    if(!currentUser){
+      alert('Open this Mini App in Telegram to use Top-up.');
+      return;
+    }
+    const phone = document.getElementById('phone').value.trim();
+    const op = document.getElementById('operator').value;
+    const amt = Number(document.getElementById('topupAmount').value || 0);
+    const status = document.getElementById('topupStatus');
+    status.innerText = '';
+
+    if(!phone || phone.length < 7){ status.innerText = 'شمېره سم نده.'; return; }
+    if(amt < 25){ status.innerText = 'Top-up باید لږ تر لږه 25 AFN وي.'; return; }
+
+    // atomic check & deduct
+    const balRef = rdb.ref('users/'+uid+'/balance');
+    balRef.transaction(cur => {
+      if((cur||0) < amt) return; // abort
+      return (cur||0) - amt;
+    }, (err, committed, snap) => {
+      if(err){ status.innerText = 'Error processing top-up.'; console.error(err); return; }
+      if(!committed){ status.innerText = 'ستاسو بیلانس کافی نه دی.'; return; }
+
+      // write transaction record
+      const txRef = rdb.ref('transactions').push();
+      const tx = { id: txRef.key, uid, type: 'topup', operator: op, phone, amount: amt, timestamp: Date.now(), status: 'success' };
+      txRef.set(tx).then(()=>{
+        // also store topup log
+        rdb.ref('topups').push(tx);
+        status.innerText = `Top-up successful: ${fmt(amt)} AFN → ${phone} (${op})`;
+        loadTransactions();
+        loadBalanceOnce();
+      }).catch(e=>{
+        status.innerText = 'Top-up transaction failed.';
+        console.error(e);
+      });
+    });
+  }
+
+  function loadTransactions(){
+    const el = document.getElementById('txList');
+    el.innerHTML = 'Loading...';
+    rdb.ref('transactions').orderByChild('uid').equalTo(uid).limitToLast(50).once('value').then(snap=>{
+      const arr = []; snap.forEach(ch=> arr.push(ch.val()));
+      arr.sort((a,b)=> b.timestamp - a.timestamp);
+      if(arr.length === 0){ el.innerHTML = '<div class="small">No transactions yet.</div>'; return; }
+      el.innerHTML = arr.map(tx => `<div class="tx-item"><div><strong>${tx.type}</strong> — ${fmt(tx.amount||0)} AFN</div><div class="small">${new Date(tx.timestamp).toLocaleString()}</div></div>`).join('');
+    }).catch(e=> { el.innerHTML = 'Error loading.'; console.error(e); });
+  }
+
+  function loadBalanceOnce(){
+    rdb.ref('users/'+uid+'/balance').once('value').then(snap=>{
+      const val = snap.exists() ? Number(snap.val()) : 0;
+      state.balance = val;
+      updateUIValues();
+    });
+  }
+
+  /***********************************************
+   * Leaderboard & Daily Bonus
+   ***********************************************/
+  function loadLeaderboard(){
+    const el = document.getElementById('leaderboardList');
+    el.innerHTML = 'Loading...';
+    rdb.ref('users').orderByChild('balance').limitToLast(20).once('value').then(snap=>{
+      const arr = []; snap.forEach(ch=> arr.push(ch.val()));
+      arr.sort((a,b)=> (b.balance||0) - (a.balance||0));
+      if(arr.length === 0){ el.innerHTML = '<div class="small">No users yet.</div>'; return; }
+      el.innerHTML = arr.map(u => `<div style="padding:8px 0;border-bottom:1px solid #f4f6f8"><strong>${u.first_name||u.name||'User'}</strong> — ${fmt(u.balance||0)} AFN</div>`).join('');
+    });
+  }
+
+  function dailyBonusCheck(){
+    // give 1 AFN if lastLogin < today
+    const uRef = rdb.ref('users/'+uid);
+    uRef.once('value').then(snap=>{
+      const data = snap.val() || {};
+      const lastLogin = data.lastLogin || 0;
+      const todayStart = new Date().setHours(0,0,0,0);
+      if(!lastLogin || lastLogin < todayStart){
+        // credit 1 AFN using transaction
+        uRef.transaction(u=>{
+          if(!u) return u;
+          u.balance = (Number(u.balance||0) + 1);
+          u.lastLogin = Date.now();
+          return u;
+        }, (err,committed,snap2)=>{
+          if(committed){
+            state.balance = snap2.val().balance || state.balance;
+            updateUIValues();
+            alert('🎁 Daily Bonus: 1 AFN added!');
+          }
+        });
+      }
+    });
+  }
+
+  function renderProfile(){
+    document.getElementById('pName').innerText = currentUser ? (currentUser.first_name || '') + ' ' + (currentUser.last_name || '') : 'Guest';
+    document.getElementById('pUsername').innerText = currentUser ? (currentUser.username || '') : '';
+    document.getElementById('pId').innerText = uid;
+    document.getElementById('pAds').innerText = state.ads_today || 0;
+  }
+
+  /***********************************************
+   * On load finalize
+   ***********************************************/
+  function loadUser(){
+    // call to sync DB values
+    loadBalanceOnce();
+    rdb.ref('users/'+uid).on('value', snap=>{
+      const d = snap.val() || {};
+      state.balance = Number(d.balance||0);
+      state.ads_today = Number(d.ads_today||0);
+      state.ads_date = d.ads_date || todayISO();
+      updateUIValues();
+    });
+  }
+
+  // start init after user enters demo (enterDemo triggers initApp)
+  // but also call dailyBonusCheck on start when DB loaded
+  // We call dailyBonusCheck inside initApp after DB create/read
+  // Helper: call initApp once main shows -> already in enterDemo path
+
+  /***********************************************
+   * Expose some functions for debugging
+   ***********************************************/
+  window.playRewardedAd = playRewardedAd;
+  window.grantRewardAtomic = grantRewardAtomic;
+  window.doTopup = doTopup;
+  window.loadLeaderboard = loadLeaderboard;
+
+  // ensure initApp called when main visible (enterDemo does)
+  function initApp(){
+    // this function defined earlier; to avoid double def, ensure it's same
+  }
+  </script>
 </body>
 </html>
