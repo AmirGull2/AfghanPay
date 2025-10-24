@@ -1,4 +1,148 @@
-// Referral button
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Afghan Mini App</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+
+  <!-- Montage Ads SDK -->
+  <script src="//libtl.com/sdk.js" data-zone="10088330" data-sdk="show_10088330"></script>
+
+  <style>
+    body {
+      font-family: "Poppins", sans-serif;
+      background: linear-gradient(135deg, #007AFF, #00C6FF);
+      color: white;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+    }
+
+    .splash {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      flex-direction: column;
+      background: #007AFF;
+    }
+
+    .hidden { display: none; }
+
+    .btn {
+      background: white;
+      color: #007AFF;
+      padding: 12px 25px;
+      border-radius: 10px;
+      font-weight: bold;
+      margin-top: 15px;
+      border: none;
+      cursor: pointer;
+    }
+
+    .card {
+      background: white;
+      color: #333;
+      margin: 15px;
+      padding: 15px;
+      border-radius: 15px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+
+    img.profile-pic {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Splash -->
+  <div id="splash" class="splash">
+    <h1>Afghan Mini App</h1>
+    <p>Loading...</p>
+  </div>
+
+  <!-- Home -->
+  <div id="home" class="hidden">
+    <h2>Welcome, <span id="username"></span></h2>
+    <img id="userpic" class="profile-pic" src="" alt="Profile Picture">
+    <div class="card">
+      <h3>💰 Wallet Balance</h3>
+      <p><span id="balance">0.00</span> AFN</p>
+      <button class="btn" id="watchAd">🎥 Watch Ad (Earn 0.15 AFN)</button>
+    </div>
+
+    <div class="card">
+      <h3>👥 Referral</h3>
+      <p>Invite friends and earn 1 AFN per join!</p>
+      <button class="btn" id="refBtn">Share Referral Link</button>
+    </div>
+
+    <div class="card">
+      <h3>📱 Mobile Top-up</h3>
+      <p>Recharge starts from 25 AFN</p>
+      <button class="btn" id="topupBtn">Recharge Now</button>
+    </div>
+
+    <div class="card">
+      <h3>🏆 Leaderboard</h3>
+      <p>Top Earners Coming Soon!</p>
+    </div>
+  </div>
+
+  <script>
+    // Initialize Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyDCcKpU-6lPnjn7NSTZVq6R5HGLac2GlAk",
+      authDomain: "zaroratpay.firebaseapp.com",
+      databaseURL: "https://zaroratpay-default-rtdb.firebaseio.com",
+      projectId: "zaroratpay",
+      storageBucket: "zaroratpay.firebasestorage.app",
+      messagingSenderId: "992212281257",
+      appId: "1:992212281257:web:bf5e442cc2636725ee06b8",
+      measurementId: "G-51VT4W8MYZ"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    const tg = window.Telegram.WebApp;
+    tg.expand();
+
+    setTimeout(() => {
+      document.getElementById("splash").classList.add("hidden");
+      document.getElementById("home").classList.remove("hidden");
+
+      const user = tg.initDataUnsafe?.user || {};
+      document.getElementById("username").innerText = user.first_name || "Guest";
+      document.getElementById("userpic").src = user.photo_url || "https://i.ibb.co/fxLwLrR/user.png";
+
+      // Save user info to Firebase
+      if (user.id) {
+        db.ref("users/" + user.id).set({
+          name: user.first_name,
+          username: user.username || "none",
+          photo: user.photo_url || "",
+          balance: 0
+        });
+      }
+    }, 2500);
+
+    // Rewarded Ad
+    document.getElementById("watchAd").onclick = () => {
+      show_10088330().then(() => {
+        alert("✅ You earned 0.15 AFN!");
+      }).catch(err => {
+        alert("⚠️ Ad failed: " + err);
+      });
+    };
+
+    // Referral button
     document.getElementById("refBtn").onclick = () => {
       const refLink = https://t.me/afghan_earning_bot?start=${tg.initDataUnsafe?.user?.id};
       tg.shareUrl(refLink);
