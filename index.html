@@ -3,224 +3,85 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ZaroratPay Mini App</title>
-
-<!-- Telegram SDK -->
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-
-<!-- Montage Ads SDK -->
-<script async src="https://otieu.com/pfe/current/tag.min.js?z=3068852" data-cfasync="false"></script>
-
+<title>AfghanPay Mini App</title>
 <style>
-body {font-family:"Poppins",sans-serif; background:#f0f3fa; margin:0; padding:0;}
-#splash {text-align:center; padding-top:35vh; color:#007aff; font-size:28px;}
-#app {display:none; max-width:430px; margin:auto; background:white; border-radius:15px; box-shadow:0 5px 15px rgba(0,0,0,0.1); overflow:hidden;}
-header {background:linear-gradient(90deg,#007aff,#00b8d4); color:white; text-align:center; padding:25px 10px;}
-header img {width:80px; height:80px; border-radius:50%; border:3px solid white;}
-nav {display:flex; justify-content:space-around; border-top:1px solid #eee; padding:10px; background:#fafafa;}
-nav button {border:none; background:none; font-size:20px;}
-.page {padding:20px;}
-button.main {background:#007aff; color:white; border:none; padding:12px 20px; border-radius:8px; font-size:16px;}
-input,select {width:100%; padding:10px; border-radius:8px; border:1px solid #ccc; margin-top:10px;}
-#leaderboardList li {background:#f9f9f9; margin:5px 0; padding:10px; border-radius:6px;}
+  body {
+    font-family: "Poppins", sans-serif;
+    background: linear-gradient(135deg, #0e1e2f, #143b52);
+    color: white;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+  }
+  .container {
+    padding: 20px;
+  }
+  .btn {
+    display: block;
+    width: 80%;
+    margin: 10px auto;
+    padding: 14px;
+    background-color: #007bff;
+    border-radius: 12px;
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    transition: 0.3s;
+  }
+  .btn:hover {
+    background-color: #0099ff;
+  }
+  .ad-box {
+    margin-top: 20px;
+    background: #162b40;
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .logo {
+    width: 120px;
+    border-radius: 50%;
+    margin-top: 20px;
+  }
+  h1 {
+    font-size: 22px;
+    margin-bottom: 10px;
+  }
 </style>
 </head>
 <body>
 
-<div id="splash">
-  <h1>ZaroratPay</h1>
-  <p>Loading your wallet...</p>
-</div>
+  <img src="https://upload.wikimedia.org/wikipedia/commons/6/62/Afghanistan_emblem.png" class="logo">
+  <h1>AfghanPay Mini App</h1>
+  <p>Welcome to the AfghanPay Telegram Mini App 💳</p>
 
-<div id="app">
-  <header>
-    <img id="user_photo" src="">
-    <h2 id="user_name">کارونکی</h2>
-    <p id="balance">Balance: 0 AFN</p>
-  </header>
+  <div class="container">
+    <a href="#" class="btn">🏠 Home</a>
+    <a href="#" class="btn">💰 Deposit Wallet</a>
+    <a href="#" class="btn">📱 Mobile Top-up (From 25 AFN)</a>
+    <a href="#" class="btn">🏆 Leaderboard</a>
+    <a href="#" class="btn">⚙️ Settings</a>
+    <a href="#" class="btn">👤 Profile</a>
+    <button id="showAds" class="btn" style="background:#ff5722;">🎬 Watch Ad (Earn Rewards)</button>
+  </div>
 
-  <nav>
-    <button onclick="showPage('home')">🏠</button>
-    <button onclick="showPage('wallet')">💰</button>
-    <button onclick="showPage('topup')">📱</button>
-    <button onclick="showPage('leaderboard')">🏆</button>
-    <button onclick="showPage('profile')">👤</button>
-  </nav>
+  <div id="adContainer" class="ad-box">
+    <p>🎞️ Ads will appear below:</p>
+    <div id="montageAd"></div>
+  </div>
 
-  <section id="home" class="page">
-    <h3>🎬 Watch Ads & Earn</h3>
-    <button id="adBtn" class="main">Watch Ad (0.15 AFN)</button>
-    <p id="adsToday">You watched 0 ads today</p>
-  </section>
+  <!-- ✅ Montage Ads Script -->
+  <script src="//libtl.com/sdk.js" data-zone="10088330" data-sdk="show_10088330"></script>
 
-  <section id="wallet" class="page" style="display:none;">
-    <h3>💰 Wallet</h3>
-    <p>Your balance: <b id="walletBalance">0 AFN</b></p>
-  </section>
-
-  <section id="topup" class="page" style="display:none;">
-    <h3>📱 Mobile Top-Up</h3>
-    <label>Network:</label>
-    <select id="network">
-      <option>Roshan</option>
-      <option>Etisalat</option>
-      <option>AWCC</option>
-      <option>MTN</option>
-    </select>
-    <label>Phone Number:</label>
-    <input type="text" id="phone" placeholder="0700000000">
-    <label>Amount (AFN):</label>
-    <input type="number" id="amount" min="25" value="25">
-    <button class="main" onclick="topup()">Recharge</button>
-  </section>
-
-  <section id="leaderboard" class="page" style="display:none;">
-    <h3>🏆 Leaderboard</h3>
-    <ul id="leaderboardList"></ul>
-  </section>
-
-  <section id="profile" class="page" style="display:none;">
-    <h3>👤 Profile</h3>
-    <p>Name: <span id="profile_name"></span></p>
-    <p>ID: <span id="profile_id"></span></p>
-  </section>
-</div>
-
-<script>
-// Firebase setup
-const firebaseConfig = {
-  apiKey: "AIzaSyDCcKpU-6lPnjn7NSTZVq6R5HGLac2GlAk",
-  authDomain: "zaroratpay.firebaseapp.com",
-  databaseURL: "https://zaroratpay-default-rtdb.firebaseio.com",
-  projectId: "zaroratpay",
-  storageBucket: "zaroratpay.firebasestorage.app",
-  messagingSenderId: "992212281257",
-  appId: "1:992212281257:web:bf5e442cc2636725ee06b8"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-
-// Telegram login
-const tg = window.Telegram.WebApp;
-tg.expand();
-const user = tg.initDataUnsafe.user;
-
-let userId = user ? user.id : "guest_" + Math.random().toString(36).substr(2,5);
-let balance = 0;
-let adsWatched = 0;
-
-// Splash
-setTimeout(() => {
-  document.getElementById('splash').style.display = 'none';
-  document.getElementById('app').style.display = 'block';
-  if(user){
-    document.getElementById('user_name').innerText = user.first_name;
-    document.getElementById('profile_name').innerText = user.first_name;
-    document.getElementById('profile_id').innerText = user.id;
-    document.getElementById('user_photo').src = user.photo_url || 'https://i.imgur.com/6VBx3io.png';
-  }
-  dailyBonus();
-  loadUser();
-}, 2000);
-
-function showPage(p){
-  document.querySelectorAll('.page').forEach(x => x.style.display='none');
-  document.getElementById(p).style.display='block';
-}
-
-// Rewarded Ad
-document.getElementById('adBtn').addEventListener('click', () => {
-  if(adsWatched >= 20){ alert("تاسو د نن ورځي 20 اعلانونه کتل!"); return; }
-
-  show_10016982({type:'inApp', inAppSettings:{frequency:2, capping:0.1, interval:30, timeout:5, everyPage:false}})
-  .then(()=>{
-    adsWatched++;
-    balance += 0.15;
-    updateUser();
-    document.getElementById('adsToday').innerText = `You watched ${adsWatched} ads today (Earned: ${balance.toFixed(2)} AFN)`;
-    alert("✅ تاسو ۰.۱۵ افغانی وګټلې!");
-  }).catch(e=>{
-    alert("⚠️ اعلان نه ښکاره شو، بیا هڅه وکړئ!");
-    console.error(e);
-  });
-});
-
-// Firebase load user
-function loadUser(){
-  db.ref('users/' + userId).once('value').then(snapshot => {
-    if(snapshot.exists()){
-      const data = snapshot.val();
-      balance = data.balance || 0;
-      adsWatched = data.adsWatched || 0;
-      updateUserUI();
-    } else { updateUser(); }
-    updateLeaderboard();
-  });
-}
-
-// Update Firebase and UI
-function updateUser(){
-  db.ref('users/' + userId).set({
-    name: user ? user.first_name : "Guest",
-    balance: balance,
-    adsWatched: adsWatched,
-    lastLogin: Date.now()
-  });
-  updateUserUI();
-}
-
-function updateUserUI(){
-  document.getElementById('balance').innerText = `Balance: ${balance.toFixed(2)} AFN`;
-  document.getElementById('walletBalance').innerText = `${balance.toFixed(2)} AFN`;
-  document.getElementById('adsToday').innerText = `You watched ${adsWatched} ads today (Earned: ${balance.toFixed(2)} AFN)`;
-}
-
-// Daily Bonus 1 AFN
-function dailyBonus(){
-  db.ref('users/' + userId).once('value').then(snapshot=>{
-    const lastLogin = snapshot.val() ? snapshot.val().lastLogin : 0;
-    const now = new Date().setHours(0,0,0,0);
-    if(!lastLogin || lastLogin < now){
-      balance += 1;
-      updateUser();
-      alert("🎁 Daily Bonus: 1 AFN added!");
-    }
-  });
-}
-
-// Leaderboard
-function updateLeaderboard(){
-  db.ref('users').orderByChild('balance').limitToLast(10).once('value', snapshot=>{
-    const list = document.getElementById('leaderboardList');
-    list.innerHTML = '';
-    const usersArray = [];
-    snapshot.forEach(userSnap => usersArray.push(userSnap.val()));
-    usersArray.reverse(); // highest balance first
-    usersArray.forEach(u=>{
-      const li = document.createElement('li');
-      li.textContent = `${u.name} - ${u.balance.toFixed(2)} AFN`;
-      list.appendChild(li);
+  <script>
+    document.getElementById("showAds").addEventListener("click", function() {
+      try {
+        show_10088330(); // 👈 دا د libtl.com function ده
+      } catch (e) {
+        alert("❌ Ad failed to load. Check your internet or ad zone ID.");
+        console.error(e);
+      }
     });
-  });
-}
+  </script>
 
-// Top-up
-function topup(){
-  const amount = parseFloat(document.getElementById('amount').value);
-  const phone = document.getElementById('phone').value;
-  const network = document.getElementById('network').value;
-
-  if(amount < 25){ alert("د Top-up لپاره لږ تر لږه ۲۵ افغانی اړینه ده!"); return; }
-  if(amount > balance){ alert("کافي موجودي نه لرئ!"); return; }
-
-  balance -= amount;
-  updateUser();
-  alert(`✅ ${network} ته ${amount} AFN د ${phone} نمبر لپاره واستول شو!`);
-}
-</script>
 </body>
 </html>
