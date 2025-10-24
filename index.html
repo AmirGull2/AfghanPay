@@ -1,86 +1,116 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Afghan Mini App</title>
+  
+  <!-- Telegram SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  
+  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
-
-  <!-- Montage Ads SDK -->
+  
+  <!-- Montage Ads -->
   <script src="//libtl.com/sdk.js" data-zone="10088330" data-sdk="show_10088330"></script>
-
+  
   <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
     body {
       font-family: "Poppins", sans-serif;
       background: linear-gradient(135deg, #007AFF, #00C6FF);
-      color: white;
+      color: #fff;
       text-align: center;
-      margin: 0;
-      padding: 0;
+      overflow-x: hidden;
     }
-
-    .splash {
+    #splash {
+      height: 100vh;
       display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
-      height: 100vh;
-      flex-direction: column;
-      background: #007AFF;
+      background: linear-gradient(135deg, #007AFF, #00C6FF);
+    }
+    #splash h1 {
+      font-size: 2em;
+      animation: fadeIn 1s ease-in-out;
+    }
+    #splash p {
+      font-size: 1.1em;
+      margin-top: 10px;
+      opacity: 0.8;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
     }
 
-    .hidden { display: none; }
-
-    .btn {
-      background: white;
-      color: #007AFF;
-      padding: 12px 25px;
-      border-radius: 10px;
-      font-weight: bold;
-      margin-top: 15px;
-      border: none;
-      cursor: pointer;
+    #home {
+      display: none;
+      padding: 20px;
     }
 
     .card {
-      background: white;
+      background: #fff;
       color: #333;
-      margin: 15px;
-      padding: 15px;
       border-radius: 15px;
+      margin: 15px 0;
+      padding: 20px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.2);
     }
 
     img.profile-pic {
-      width: 80px;
-      height: 80px;
+      width: 90px;
+      height: 90px;
       border-radius: 50%;
       margin-top: 10px;
+      border: 3px solid #fff;
+    }
+
+    .btn {
+      background: #007AFF;
+      color: white;
+      border: none;
+      padding: 12px 25px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: bold;
+      margin-top: 10px;
+      transition: 0.3s;
+    }
+
+    .btn:hover {
+      background: #005FCC;
     }
   </style>
 </head>
-
 <body>
-  <!-- Splash -->
-  <div id="splash" class="splash">
+
+  <!-- Splash Screen -->
+  <div id="splash">
     <h1>Afghan Mini App</h1>
-    <p>Loading...</p>
+    <p>Loading, please wait...</p>
   </div>
 
-  <!-- Home -->
-  <div id="home" class="hidden">
+  <!-- Home Section -->
+  <div id="home">
     <h2>Welcome, <span id="username"></span></h2>
-    <img id="userpic" class="profile-pic" src="" alt="Profile Picture">
+    <img id="userpic" class="profile-pic" src="" alt="Profile">
+    
     <div class="card">
-      <h3>💰 Wallet Balance</h3>
+      <h3>💰 Wallet</h3>
       <p><span id="balance">0.00</span> AFN</p>
       <button class="btn" id="watchAd">🎥 Watch Ad (Earn 0.15 AFN)</button>
     </div>
 
     <div class="card">
       <h3>👥 Referral</h3>
-      <p>Invite friends and earn 1 AFN per join!</p>
+      <p>Invite your friends and earn 1 AFN per join!</p>
       <button class="btn" id="refBtn">Share Referral Link</button>
     </div>
 
@@ -92,12 +122,12 @@
 
     <div class="card">
       <h3>🏆 Leaderboard</h3>
-      <p>Top Earners Coming Soon!</p>
+      <p>Top earners coming soon...</p>
     </div>
   </div>
 
   <script>
-    // Initialize Firebase
+    // 🔹 Firebase Init
     const firebaseConfig = {
       apiKey: "AIzaSyDCcKpU-6lPnjn7NSTZVq6R5HGLac2GlAk",
       authDomain: "zaroratpay.firebaseapp.com",
@@ -114,44 +144,52 @@
     const tg = window.Telegram.WebApp;
     tg.expand();
 
-    setTimeout(() => {
-      document.getElementById("splash").classList.add("hidden");
-      document.getElementById("home").classList.remove("hidden");
+    // 🔹 Splash delay then show home
+    window.addEventListener("load", () => {
+      setTimeout(() => {
+        document.getElementById("splash").style.display = "none";
+        document.getElementById("home").style.display = "block";
 
-      const user = tg.initDataUnsafe?.user || {};
-      document.getElementById("username").innerText = user.first_name || "Guest";
-      document.getElementById("userpic").src = user.photo_url || "https://i.ibb.co/fxLwLrR/user.png";
+        const user = tg.initDataUnsafe?.user || {};
+        const userId = user.id || "guest";
+        const userName = user.first_name || "Guest";
+        const userPic = user.photo_url || "https://i.ibb.co/fxLwLrR/user.png";
 
-      // Save user info to Firebase
-      if (user.id) {
-        db.ref("users/" + user.id).set({
-          name: user.first_name,
-          username: user.username || "none",
-          photo: user.photo_url || "",
-          balance: 0
-        });
-      }
-    }, 2500);
+        document.getElementById("username").innerText = userName;
+        document.getElementById("userpic").src = userPic;
 
-    // Rewarded Ad
-    document.getElementById("watchAd").onclick = () => {
-      show_10088330().then(() => {
+        // Save user info in Firebase
+        if (user.id) {
+          db.ref("users/" + userId).update({
+            name: userName,
+            username: user.username || "none",
+            photo: userPic
+          });
+        }
+      }, 3000);
+    });
+
+    // 🔹 Reward Ads Logic
+    document.getElementById("watchAd").addEventListener("click", () => {
+      show_10088330()
+      .then(() => {
         alert("✅ You earned 0.15 AFN!");
-      }).catch(err => {
+      })
+      .catch(err => {
         alert("⚠️ Ad failed: " + err);
       });
-    };
+    });
 
-    // Referral button
-    document.getElementById("refBtn").onclick = () => {
-      const refLink = https://t.me/afghan_earning_bot?start=${tg.initDataUnsafe?.user?.id};
+    // 🔹 Referral
+    document.getElementById("refBtn").addEventListener("click", () => {
+      const refLink = `https://t.me/YourMiniAppBot?start=${tg.initDataUnsafe?.user?.id}`;
       tg.shareUrl(refLink);
-    };
+    });
 
-    // Top-up button
-    document.getElementById("topupBtn").onclick = () => {
-      alert("🔜 Mobile Top-up starts from 25 AFN (Coming soon)");
-    };
+    // 🔹 Top-up button
+    document.getElementById("topupBtn").addEventListener("click", () => {
+      alert("📱 Mobile Top-up starts from 25 AFN — Coming soon!");
+    });
   </script>
 </body>
 </html>
