@@ -1,417 +1,150 @@
-<!doctype html>
-<html lang="ps">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Timuri App — GigaPub (zone 3927)</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Timuri App</title>
 
-<!-- Telegram Web App SDK -->
-<script async src="https://telegram.org/js/telegram-web-app.js"></script>
+  <!-- Telegram SDK -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-<!-- Firebase compat -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
-<!-- GigaPub / libtl Ads SDK (zone 3927) -->
-<script async src="//libtl.com/sdk.js" data-zone="3927" data-sdk="show_3927"></script>
-<!-- if you have another provider URL, add it here -->
+  <!-- GigaPub SDK -->
+  <script src="https://cdn.gigapub.net/sdk.js" data-pid="3927"></script>
 
-<style>
-:root{--primary:#0b84ff;--bg:#f4f7fb;--card:#fff;--radius:12px;--maxw:460px}
-*{box-sizing:border-box}
-body{font-family:Inter,system-ui,Arial;margin:0;background:var(--bg);display:flex;justify-content:center;padding:18px}
-.app{width:100%;max-width:var(--maxw)}
-.splash{background:linear-gradient(135deg,var(--primary),#00b8d4);color:#fff;padding:26px;border-radius:14px;text-align:center}
-.card{background:var(--card);padding:14px;border-radius:var(--radius);margin-top:12px;box-shadow:0 8px 22px rgba(3,20,70,0.06)}
-.row{display:flex;gap:12px;align-items:center}
-.avatar{width:72px;height:72px;border-radius:50%;object-fit:cover;border:3px solid #fff}
-h1,h2,h3{margin:6px 0}
-.small{font-size:13px;color:#555}
-.btn{background:var(--primary);color:#fff;border:none;padding:10px 12px;border-radius:10px;cursor:pointer;font-weight:600}
-.btn.ghost{background:transparent;color:var(--primary);border:1px solid rgba(11,132,255,0.14)}
-input,select{width:100%;padding:10px;margin-top:8px;border-radius:8px;border:1px solid #e6eef6}
-.hidden{display:none}
-.tx-item{padding:8px;border-bottom:1px solid #f4f6f8}
-.nav{position:fixed;left:50%;transform:translateX(-50%);bottom:12px;max-width:var(--maxw);width:100%;display:flex;gap:8px}
-.nav button{flex:1}
-</style>
+  <style>
+    body {
+      font-family: "Poppins", sans-serif;
+      background: linear-gradient(135deg, #0f172a, #1e293b);
+      color: #fff;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      padding: 20px;
+    }
+    .profile img {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      border: 3px solid #38bdf8;
+    }
+    .btn {
+      background: #38bdf8;
+      color: #000;
+      border: none;
+      border-radius: 12px;
+      padding: 10px 18px;
+      margin: 10px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .btn:hover {
+      background: #0ea5e9;
+    }
+    .wallet {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 15px;
+      padding: 10px;
+      margin: 20px auto;
+      width: 80%;
+    }
+  </style>
 </head>
 <body>
-  <div class="app">
-
-    <!-- Splash -->
-    <div id="splash" class="splash">
-      <h1>Timuri App</h1>
-      <p class="small">Open from Telegram for auto-login, ads & rewards</p>
-      <div style="margin-top:12px">
-        <button class="btn" onclick="enterApp()">Open App</button>
-      </div>
+  <div class="container">
+    <h2>💠 Timuri App</h2>
+    <div id="userSection" class="profile">
+      <img id="userPic" src="" alt="Profile" />
+      <h3 id="userName">Loading...</h3>
     </div>
 
-    <!-- Main -->
-    <div id="main" class="hidden">
-      <!-- profile -->
-      <div class="card">
-        <div class="row">
-          <img id="profilePhoto" class="avatar" src="https://via.placeholder.com/100" alt="photo">
-          <div style="flex:1">
-            <h2 id="profileName">Guest</h2>
-            <div class="small" id="profileUsername"></div>
-            <div class="small">Balance: <strong id="balance">0.00</strong> AFN</div>
-          </div>
-        </div>
-
-        <div style="margin-top:12px" class="row">
-          <button id="watchAdBtn" class="btn">Watch Ad — Earn 0.15 AFN</button>
-          <button class="btn ghost" onclick="showSection('wallet')">Wallet</button>
-          <button class="btn ghost" onclick="showSection('topup')">Top-up</button>
-        </div>
-
-        <div id="adsInfo" class="small" style="margin-top:8px"></div>
-      </div>
-
-      <!-- home -->
-      <div id="home" class="card">
-        <h3>Home</h3>
-        <p class="small">Daily bonus: 1 AFN once/day. Referral reward: 2 AFN per successful referral.</p>
-        <div id="adContainer" style="margin-top:12px">
-          <div class="small">Ads open via SDK overlay / popup (depends on SDK & WebView).</div>
-          <div id="adPlaceholder" style="margin-top:8px"></div>
-        </div>
-      </div>
-
-      <!-- wallet -->
-      <div id="wallet" class="card hidden">
-        <h3>Wallet & Transactions</h3>
-        <div class="small">Balance: <strong id="walletBalance">0.00</strong> AFN</div>
-        <div style="margin-top:12px">
-          <h4>Transactions</h4>
-          <div id="txList" class="small">Loading...</div>
-        </div>
-        <div style="margin-top:12px">
-          <h4>Withdraw</h4>
-          <label>Withdraw to (mobile/wallet)</label>
-          <input id="withdrawTo" placeholder="07XXXXXXXX"/>
-          <label>Amount (AFN)</label>
-          <input id="withdrawAmount" type="number" min="1" value="100"/>
-          <div style="margin-top:8px" class="row">
-            <button class="btn" onclick="requestWithdraw()">Request Withdraw</button>
-            <button class="btn ghost" onclick="showSection('home')">Cancel</button>
-          </div>
-          <div id="withdrawStatus" class="small" style="margin-top:8px"></div>
-        </div>
-      </div>
-
-      <!-- topup -->
-      <div id="topup" class="card hidden">
-        <h3>Mobile Top-up</h3>
-        <label>Operator</label>
-        <select id="operator"><option>Roshan</option><option>Etisalat</option><option>AWCC</option><option>MTN</option></select>
-        <label>Phone number</label>
-        <input id="phone" placeholder="07XXXXXXXX"/>
-        <label>Amount (AFN) — minimum 25</label>
-        <input id="topupAmount" type="number" min="25" value="25"/>
-        <div style="margin-top:10px" class="row">
-          <button class="btn" onclick="doTopup()">Top-up Now</button>
-          <button class="btn ghost" onclick="showSection('wallet')">View Wallet</button>
-        </div>
-        <div id="topupStatus" class="small" style="margin-top:8px"></div>
-      </div>
-
-      <!-- leaderboard -->
-      <div id="leaderboard" class="card hidden">
-        <h3>Leaderboard — Top 10</h3>
-        <div id="leaderboardList" class="small">Loading...</div>
-      </div>
-
-      <!-- profile -->
-      <div id="profile" class="card hidden">
-        <h3>Profile</h3>
-        <div class="small">Name: <strong id="pName"></strong></div>
-        <div class="small">Username: <strong id="pUsername"></strong></div>
-        <div class="small">Telegram ID: <strong id="pId"></strong></div>
-        <div class="small" style="margin-top:8px">Ads today: <strong id="pAds">0</strong>/20</div>
-        <div style="margin-top:8px">
-          <button class="btn" onclick="shareReferral()">Share Referral</button>
-        </div>
-      </div>
-
+    <div class="wallet">
+      <h3>💰 Wallet: <span id="balance">0.00</span> AFN</h3>
     </div>
 
-    <div class="nav">
-      <button class="btn ghost" onclick="showSection('home')">Home</button>
-      <button class="btn ghost" onclick="showSection('leaderboard')">Leaderboard</button>
-      <button class="btn ghost" onclick="showSection('wallet')">Wallet</button>
-      <button class="btn ghost" onclick="showSection('profile')">Profile</button>
-    </div>
+    <button class="btn" id="watchAdBtn">🎥 Watch Ad (Earn 0.15 AFN)</button>
+    <button class="btn" id="referBtn">🔗 Copy Referral Link</button>
+    <button class="btn" id="depositBtn">📱 Mobile Top-up</button>
   </div>
 
-<script>
-/* CONFIG */
-const FIREBASE_CONFIG = {
-  apiKey: "AIzaSyDCcKpU-6lPnjn7NSTZVq6R5HGLac2GlAk",
-  authDomain: "zaroratpay.firebaseapp.com",
-  databaseURL: "https://zaroratpay-default-rtdb.firebaseio.com",
-  projectId: "zaroratpay",
-  storageBucket: "zaroratpay.firebasestorage.app",
-  messagingSenderId: "992212281257",
-  appId: "1:992212281257:web:bf5e442cc2636725ee06b8"
-};
-const AD_REWARD = 0.15;
-const DAILY_LIMIT = 20;
-const REFERRAL_REWARD = 2.0;
-const BOT_USERNAME = 'TimuriAppBot'; // ← خپلې بوت username دلته ولیکه
+  <script>
+    // --- Firebase Config ---
+    const firebaseConfig = {
+      apiKey: "AIzaSyDCcKpU-6lPnjn7NSTZVq6R5HGLac2GlAk",
+      authDomain: "zaroratpay.firebaseapp.com",
+      databaseURL: "https://zaroratpay-default-rtdb.firebaseio.com",
+      projectId: "zaroratpay",
+      storageBucket: "zaroratpay.firebasestorage.app",
+      messagingSenderId: "992212281257",
+      appId: "1:992212281257:web:bf5e442cc2636725ee06b8",
+      measurementId: "G-51VT4W8MYZ"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
 
-/* INIT Firebase */
-firebase.initializeApp(FIREBASE_CONFIG);
-const rdb = firebase.database();
+    // --- Telegram Login ---
+    const tg = window.Telegram.WebApp;
+    tg.expand();
 
-/* Telegram */
-let tg=null;
-try{ tg = window.Telegram.WebApp; tg.expand(); }catch(e){ tg=null; }
-const tgUser = tg && tg.initDataUnsafe && tg.initDataUnsafe.user ? tg.initDataUnsafe.user : null;
-const uid = tgUser ? String(tgUser.id) : ('guest_' + Math.random().toString(36).slice(2,9));
-let state = { balance:0, ads_today:0, ads_date:'' };
+    let user = tg.initDataUnsafe?.user;
+    let userId, userName, userPic;
 
-/* Utils */
-function todayISO(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
-function fmt(n){ return Number(n||0).toFixed(2); }
-function showSection(id){
-  const sections=['home','wallet','topup','leaderboard','profile'];
-  sections.forEach(s => document.getElementById(s).classList.toggle('hidden', s!==id));
-  if(id==='wallet') loadTransactions();
-  if(id==='leaderboard') loadLeaderboard();
-  if(id==='profile') renderProfile();
-}
-
-/* App start */
-function enterApp(){
-  document.getElementById('splash').classList.add('hidden');
-  document.getElementById('main').classList.remove('hidden');
-  initApp();
-}
-
-/* Init */
-function initApp(){
-  // profile UI
-  if(tgUser){
-    document.getElementById('profilePhoto').src = tgUser.photo_url || 'https://via.placeholder.com/100';
-    document.getElementById('profileName').innerText = tgUser.first_name || 'User';
-    document.getElementById('profileUsername').innerText = tgUser.username ? '@'+tgUser.username : '';
-    document.getElementById('pName').innerText = (tgUser.first_name||'') + ' ' + (tgUser.last_name||'');
-    document.getElementById('pUsername').innerText = tgUser.username || '';
-    document.getElementById('pId').innerText = uid;
-  } else {
-    document.getElementById('profileName').innerText = 'Guest';
-  }
-
-  const uRef = rdb.ref('users/'+uid);
-  uRef.once('value').then(snap => {
-    const now = todayISO();
-    if(!snap.exists()){
-      uRef.set({ id: uid, first_name: tgUser?tgUser.first_name:'Guest', username: tgUser?tgUser.username:'', photo: tgUser?tgUser.photo_url:'', balance:0, ads_today:0, ads_date: now, referrals:0, joinedAt: Date.now(), lastLogin: Date.now() });
-      state = { balance:0, ads_today:0, ads_date: now };
-      updateUI();
+    if (user) {
+      userId = user.id;
+      userName = user.first_name + " " + (user.last_name || "");
+      userPic = user.photo_url || "https://via.placeholder.com/90";
+      document.getElementById("userName").innerText = userName;
+      document.getElementById("userPic").src = userPic;
     } else {
-      const data = snap.val();
-      if(!data.ads_date || data.ads_date !== now){
-        uRef.update({ ads_today:0, ads_date: now });
-        data.ads_today = 0; data.ads_date = now;
-      }
-      state.balance = Number(data.balance || 0);
-      state.ads_today = Number(data.ads_today || 0);
-      state.ads_date = data.ads_date || now;
-      updateUI();
-    }
-    dailyBonusCheck();
-  });
-
-  rdb.ref('users/'+uid).on('value', snap => {
-    const d = snap.val() || {};
-    state.balance = Number(d.balance || 0);
-    state.ads_today = Number(d.ads_today || 0);
-    state.ads_date = d.ads_date || todayISO();
-    updateUI();
-  });
-
-  document.getElementById('watchAdBtn').addEventListener('click', ()=> playRewardedAd());
-  handleReferralOnOpen();
-  loadLeaderboard();
-}
-
-/* UI update */
-function updateUI(){
-  document.getElementById('balance').innerText = fmt(state.balance);
-  document.getElementById('walletBalance').innerText = fmt(state.balance);
-  document.getElementById('adsInfo').innerText = `Ads today: ${state.ads_today}/${DAILY_LIMIT}`;
-  const adsTodayEl = document.getElementById('adsToday'); if(adsTodayEl) adsTodayEl.innerText = `Ads today: ${state.ads_today}/${DAILY_LIMIT}`;
-  document.getElementById('pAds').innerText = state.ads_today;
-}
-
-/* Atomic reward grant */
-function grantRewardAtomic(reward=AD_REWARD){
-  const uRef = rdb.ref('users/'+uid);
-  return uRef.transaction(u=>{
-    if(!u) return u;
-    const curDay = todayISO();
-    if(!u.ads_date || u.ads_date !== curDay){ u.ads_date = curDay; u.ads_today = 0; }
-    if((u.ads_today||0) >= DAILY_LIMIT){ return u; }
-    u.ads_today = (u.ads_today||0) + 1;
-    u.balance = Number(((u.balance||0) + Number(reward)).toFixed(6));
-    return u;
-  }, (err, committed, snap)=>{
-    if(err){ console.error(err); alert('Error processing reward.'); return; }
-    if(!committed){ alert(`You reached daily limit (${DAILY_LIMIT}).`); return; }
-    const txRef = rdb.ref('transactions').push();
-    txRef.set({ id: txRef.key, uid, type:'reward', amount: reward, timestamp: Date.now() });
-  });
-}
-
-/* Ad detection & play (looks for show_3927 or other show_* functions) */
-function findAdFn(){
-  if(typeof window.show_3927 === 'function') return window.show_3927;
-  for(const k in window){
-    if(typeof k === 'string' && k.startsWith('show_') && typeof window[k] === 'function'){
-      return window[k];
-    }
-  }
-  return null;
-}
-
-async function playRewardedAd(){
-  if(!tg){ alert('Open this Mini App inside Telegram to earn rewards.'); return; }
-  if(state.ads_today >= DAILY_LIMIT){ alert(`Daily limit ${DAILY_LIMIT} reached.`); return; }
-
-  const adFn = findAdFn();
-  if(!adFn){ alert('Ad SDK not loaded or zone ID incorrect. Check console.'); console.warn('No ad fn found.'); return; }
-
-  try {
-    let res;
-    try { res = adFn('pop'); } catch(e1) { try { res = adFn({type:'rewarded'}); } catch(e2){ try { res = adFn(); } catch(e3){ res = undefined; } } }
-
-    if(res && typeof res.then === 'function'){
-      await res;
-      await grantRewardAtomic(AD_REWARD);
-      alert(`✅ You earned ${AD_REWARD} AFN`);
-      return;
+      document.getElementById("userName").innerText = "Login Failed ❌";
     }
 
-    // fallback: common callbacks
-    let rewarded = false;
-    const cbNames = ['onAdComplete','onReward','on_ad_complete','onRewarded','onAdClosed'];
-    const originals = {};
-    cbNames.forEach(n => { originals[n] = window[n]; window[n] = function(){ rewarded = true; grantRewardAtomic(AD_REWARD); window[n] = originals[n]; }; });
-
-    await new Promise(r => setTimeout(r, 7000));
-    if(rewarded){ alert(`✅ You earned ${AD_REWARD} AFN`); return; }
-
-    const ok = confirm('If you watched the full ad, press OK to get reward.');
-    if(ok){ await grantRewardAtomic(AD_REWARD); alert(`✅ You earned ${AD_REWARD} AFN`); }
-    else alert('No reward given.');
-  } catch(err){
-    console.error('Ad play error', err);
-    alert('Ad failed: see console.');
-  }
-}
-
-/* Referral on open */
-function handleReferralOnOpen(){
-  const params = new URLSearchParams(window.location.search);
-  const refId = params.get('start') || params.get('ref');
-  if(refId && refId !== uid){
-    const logKey = `referrals_claimed/${uid}`;
-    rdb.ref(logKey).once('value').then(snap=>{
-      if(snap.exists()) return;
-      const refUserRef = rdb.ref('users/' + refId);
-      refUserRef.transaction(u => { if(!u) return u; u.balance = Number(((u.balance||0) + REFERRAL_REWARD).toFixed(6)); u.referrals = (u.referrals||0) + 1; return u; }, (err, committed) => {
-        if(err) console.error(err);
-        if(committed){
-          rdb.ref(logKey).set({ refId, ts: Date.now() });
-          const txRef = rdb.ref('transactions').push();
-          txRef.set({ id: txRef.key, uid: refId, type:'referral', amount: REFERRAL_REWARD, from: uid, timestamp: Date.now() });
-          console.log('Referral credited to', refId);
-        }
-      });
+    // --- Wallet Load ---
+    const balanceRef = db.ref("users/" + userId + "/balance");
+    balanceRef.on("value", (snap) => {
+      document.getElementById("balance").innerText = snap.val() || "0.00";
     });
-  }
-}
 
-/* Daily bonus */
-function dailyBonusCheck(){
-  const uRef = rdb.ref('users/' + uid);
-  uRef.once('value').then(snap=>{
-    const data = snap.val() || {};
-    const lastLogin = data.lastLogin || 0;
-    const todayStart = new Date().setHours(0,0,0,0);
-    if(!lastLogin || lastLogin < todayStart){
-      uRef.transaction(u => { if(!u) return u; u.balance = Number(((u.balance||0) + 1).toFixed(6)); u.lastLogin = Date.now(); return u; }, (err,committed) => { if(committed) alert('🎁 Daily Bonus: 1 AFN added!'); });
+    // --- GigaPub Rewarded Ad ---
+    document.getElementById("watchAdBtn").addEventListener("click", () => {
+      if (typeof GigaPub !== "undefined") {
+        GigaPub.showAd({ type: "rewarded" })
+          .then(() => {
+            let reward = 0.15;
+            balanceRef.transaction((bal) => (bal || 0) + reward);
+            alert("✅ You earned " + reward + " AFN!");
+          })
+          .catch((err) => alert("⚠️ Ad Error: " + err.message));
+      } else {
+        alert("⚠️ GigaPub SDK not loaded!");
+      }
+    });
+
+    // --- Referral System ---
+    document.getElementById("referBtn").addEventListener("click", () => {
+      let refLink = `${window.location.origin}?ref=${userId}`;
+      navigator.clipboard.writeText(refLink);
+      alert("🔗 Referral link copied:\n" + refLink);
+    });
+
+    // --- Handle Referral Reward ---
+    const urlParams = new URLSearchParams(window.location.search);
+    const refId = urlParams.get("ref");
+    if (refId && refId !== userId) {
+      const refBalanceRef = db.ref("users/" + refId + "/balance");
+      refBalanceRef.transaction((bal) => (bal || 0) + 2.0);
     }
-  });
-}
 
-/* Transactions / topup / withdraw */
-function loadTransactions(){ const el = document.getElementById('txList'); el.innerHTML='Loading...'; rdb.ref('transactions').orderByChild('uid').equalTo(uid).limitToLast(50).once('value').then(snap=>{ const arr=[]; snap.forEach(ch=>arr.push(ch.val())); arr.sort((a,b)=> b.timestamp - a.timestamp); if(arr.length===0){ el.innerHTML='<div class="small">No transactions yet.</div>'; return; } el.innerHTML = arr.map(t=>`<div class="tx-item"><strong>${t.type}</strong> — ${fmt(t.amount||0)} AFN<div class="small">${new Date(t.timestamp).toLocaleString()}</div></div>`).join(''); }).catch(e=>{ el.innerHTML='Error loading.'; console.error(e); }); }
-
-function doTopup(){
-  if(!tg){ alert('Open inside Telegram to top-up.'); return; }
-  const phone = document.getElementById('phone').value.trim();
-  const op = document.getElementById('operator').value;
-  const amt = Number(document.getElementById('topupAmount').value || 0);
-  const status = document.getElementById('topupStatus'); status.innerText='';
-  if(!phone || phone.length < 7){ status.innerText = 'Enter valid phone.'; return; }
-  if(amt < 25){ status.innerText = 'Top-up must be at least 25 AFN.'; return; }
-  const balRef = rdb.ref('users/' + uid + '/balance');
-  balRef.transaction(cur => { if((cur||0) < amt) return; return (cur||0) - amt; }, (err, committed, snap) => {
-    if(err){ status.innerText='Error processing top-up.'; console.error(err); return; }
-    if(!committed){ status.innerText='Insufficient balance.'; return; }
-    const txRef = rdb.ref('transactions').push();
-    const tx = { id: txRef.key, uid, type:'topup', operator:op, phone, amount:amt, timestamp: Date.now(), status:'success' };
-    txRef.set(tx); rdb.ref('topups').push(tx);
-    status.innerText = `Top-up successful: ${fmt(amt)} AFN → ${phone} (${op})`; loadTransactions(); loadBalanceOnce();
-  });
-}
-
-function requestWithdraw(){
-  if(!tg){ alert('Open inside Telegram to withdraw.'); return; }
-  const to = document.getElementById('withdrawTo').value.trim();
-  const amt = Number(document.getElementById('withdrawAmount').value || 0);
-  const status = document.getElementById('withdrawStatus'); status.innerText='';
-  if(!to || to.length < 5){ status.innerText='Enter destination.'; return; }
-  if(amt <= 0){ status.innerText='Enter amount.'; return; }
-  const balRef = rdb.ref('users/' + uid + '/balance');
-  balRef.transaction(cur => { if((cur||0) < amt) return; return (cur||0) - amt; }, (err, committed, snap) => {
-    if(err){ status.innerText='Error.'; console.error(err); return; }
-    if(!committed){ status.innerText='Insufficient balance.'; return; }
-    const wRef = rdb.ref('withdraws').push();
-    const wobj = { id: wRef.key, uid, to, amount: amt, status: 'pending', timestamp: Date.now() };
-    wRef.set(wobj); const txRef = rdb.ref('transactions').push();
-    txRef.set({ id: txRef.key, uid, type:'withdraw_request', amount: amt, timestamp: Date.now() });
-    status.innerText = 'Withdraw requested (pending).'; loadTransactions(); loadBalanceOnce();
-  });
-}
-
-function loadBalanceOnce(){ rdb.ref('users/'+uid+'/balance').once('value').then(s=>{ state.balance = Number(s.exists()?s.val():0); updateUI(); }); }
-
-/* Leaderboard */
-function loadLeaderboard(){ const el = document.getElementById('leaderboardList'); el.innerHTML='Loading...'; rdb.ref('users').orderByChild('balance').limitToLast(10).once('value').then(snap=>{ const arr=[]; snap.forEach(ch=>arr.push(ch.val())); arr.sort((a,b)=> (b.balance||0) - (a.balance||0)); if(arr.length===0){ el.innerHTML='<div class="small">No users yet.</div>'; return; } el.innerHTML = arr.map((u,i)=>`<div style="padding:8px 0;border-bottom:1px solid #f4f6f8"><strong>#${i+1} ${u.first_name||u.name||'User'}</strong> — ${fmt(u.balance||0)} AFN</div>`).join(''); }).catch(e=>el.innerHTML='Error',console.error(e)); }
-
-/* Profile render & share */
-function renderProfile(){ document.getElementById('pName').innerText = tgUser ? (tgUser.first_name||'') + ' ' + (tgUser.last_name||'') : 'Guest'; document.getElementById('pUsername').innerText = tgUser ? (tgUser.username||'') : ''; document.getElementById('pId').innerText = uid; document.getElementById('pAds').innerText = state.ads_today || 0; }
-
-function shareReferral(){ if(!tg || !tg.initDataUnsafe || !tg.initDataUnsafe.user){ alert('Open inside Telegram to share referral'); return; } const myId = String(tg.initDataUnsafe.user.id); const refLink = `https://t.me/${BOT_USERNAME}?start=${myId}`; try{ tg.shareUrl(refLink); } catch(e){ alert('Share link: ' + refLink); } }
-
-/* Handle referral when page loads */
-function handleReferralOnOpen(){ const params = new URLSearchParams(window.location.search); const refId = params.get('start') || params.get('ref'); if(refId && refId !== uid){ const logKey = `referrals_claimed/${uid}`; rdb.ref(logKey).once('value').then(snap=>{ if(snap.exists()) return; const refUserRef = rdb.ref('users/' + refId); refUserRef.transaction(u => { if(!u) return u; u.balance = Number(((u.balance||0) + REFERRAL_REWARD).toFixed(6)); u.referrals = (u.referrals||0) + 1; return u; }, (err, committed) => { if(err) console.error(err); if(committed){ rdb.ref(logKey).set({ refId, ts: Date.now() }); const txRef = rdb.ref('transactions').push(); txRef.set({ id: txRef.key, uid: refId, type:'referral', amount: REFERRAL_REWARD, from: uid, timestamp: Date.now() }); console.log('Referral credited to', refId); } }); } }
-
-/* Daily bonus on load */
-function dailyBonusCheck(){ const uRef = rdb.ref('users/' + uid); uRef.once('value').then(snap=>{ const data = snap.val() || {}; const lastLogin = data.lastLogin || 0; const todayStart = new Date().setHours(0,0,0,0); if(!lastLogin || lastLogin < todayStart){ uRef.transaction(u=>{ if(!u) return u; u.balance = Number(((u.balance||0) + 1).toFixed(6)); u.lastLogin = Date.now(); return u; }, (err,committed) => { if(committed) alert('🎁 Daily Bonus: 1 AFN added!'); }); } }); }
-
-/* Expose debug helpers */
-window._timuri = { grantRewardAtomic, playRewardedAd, doTopup, requestWithdraw, loadLeaderboard, shareReferral };
-
-/* Run referral handler */
-handleReferralOnOpen();
-
-</script>
+    // --- Deposit Button ---
+    document.getElementById("depositBtn").addEventListener("click", () => {
+      alert("📱 Mobile Top-up coming soon (minimum 25 AFN)");
+    });
+  </script>
 </body>
-  </html>
+</html>
