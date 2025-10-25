@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Timuri App — MiniApp</title>
+<title>Timuri App — GigaPub (zone 3927)</title>
 
 <!-- Telegram Web App SDK -->
 <script async src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -12,10 +12,9 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
-<!-- Montage / libtl ad SDKs (multiple tries) -->
-<script async src="https://otieu.com/pfe/current/tag.min.js?z=3068852" data-cfasync="false"></script>
-<script async src="//libtl.com/sdk.js" data-zone="10088330" data-sdk="show_10088330"></script>
-<!-- if you have another script URL, add it here -->
+<!-- GigaPub / libtl Ads SDK (zone 3927) -->
+<script async src="//libtl.com/sdk.js" data-zone="3927" data-sdk="show_3927"></script>
+<!-- if you have another provider URL, add it here -->
 
 <style>
 :root{--primary:#0b84ff;--bg:#f4f7fb;--card:#fff;--radius:12px;--maxw:460px}
@@ -148,7 +147,7 @@ input,select{width:100%;padding:10px;margin-top:8px;border-radius:8px;border:1px
   </div>
 
 <script>
-/* -------------- CONFIG -------------- */
+/* CONFIG */
 const FIREBASE_CONFIG = {
   apiKey: "AIzaSyDCcKpU-6lPnjn7NSTZVq6R5HGLac2GlAk",
   authDomain: "zaroratpay.firebaseapp.com",
@@ -161,19 +160,20 @@ const FIREBASE_CONFIG = {
 const AD_REWARD = 0.15;
 const DAILY_LIMIT = 20;
 const REFERRAL_REWARD = 2.0;
+const BOT_USERNAME = 'TimuriAppBot'; // ← خپلې بوت username دلته ولیکه
 
-/* -------------- INIT Firebase -------------- */
+/* INIT Firebase */
 firebase.initializeApp(FIREBASE_CONFIG);
 const rdb = firebase.database();
 
-/* -------------- Telegram Init -------------- */
-let tg = null;
-try { tg = window.Telegram.WebApp; tg.expand(); } catch(e){ tg = null; }
+/* Telegram */
+let tg=null;
+try{ tg = window.Telegram.WebApp; tg.expand(); }catch(e){ tg=null; }
 const tgUser = tg && tg.initDataUnsafe && tg.initDataUnsafe.user ? tg.initDataUnsafe.user : null;
 const uid = tgUser ? String(tgUser.id) : ('guest_' + Math.random().toString(36).slice(2,9));
 let state = { balance:0, ads_today:0, ads_date:'' };
 
-/* -------------- Utils -------------- */
+/* Utils */
 function todayISO(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
 function fmt(n){ return Number(n||0).toFixed(2); }
 function showSection(id){
@@ -184,21 +184,16 @@ function showSection(id){
   if(id==='profile') renderProfile();
 }
 
-/* -------------- App start -------------- */
+/* App start */
 function enterApp(){
   document.getElementById('splash').classList.add('hidden');
   document.getElementById('main').classList.remove('hidden');
   initApp();
 }
 
-window.addEventListener('load', ()=> {
-  // if you want auto-enter when inside Telegram uncomment:
-  // if(tg && tgUser) enterApp();
-});
-
-/* -------------- Initialization & Listeners -------------- */
+/* Init */
 function initApp(){
-  // show profile info
+  // profile UI
   if(tgUser){
     document.getElementById('profilePhoto').src = tgUser.photo_url || 'https://via.placeholder.com/100';
     document.getElementById('profileName').innerText = tgUser.first_name || 'User';
@@ -210,23 +205,11 @@ function initApp(){
     document.getElementById('profileName').innerText = 'Guest';
   }
 
-  // ensure user record
-  const uRef = rdb.ref('users/' + uid);
+  const uRef = rdb.ref('users/'+uid);
   uRef.once('value').then(snap => {
     const now = todayISO();
     if(!snap.exists()){
-      uRef.set({
-        id: uid,
-        first_name: tgUser ? tgUser.first_name : 'Guest',
-        username: tgUser ? tgUser.username : '',
-        photo: tgUser ? tgUser.photo_url : '',
-        balance: 0,
-        ads_today: 0,
-        ads_date: now,
-        referrals: 0,
-        joinedAt: Date.now(),
-        lastLogin: Date.now()
-      });
+      uRef.set({ id: uid, first_name: tgUser?tgUser.first_name:'Guest', username: tgUser?tgUser.username:'', photo: tgUser?tgUser.photo_url:'', balance:0, ads_today:0, ads_date: now, referrals:0, joinedAt: Date.now(), lastLogin: Date.now() });
       state = { balance:0, ads_today:0, ads_date: now };
       updateUI();
     } else {
@@ -240,12 +223,10 @@ function initApp(){
       state.ads_date = data.ads_date || now;
       updateUI();
     }
-    // daily bonus
     dailyBonusCheck();
   });
 
-  // listen for live changes
-  rdb.ref('users/' + uid).on('value', snap => {
+  rdb.ref('users/'+uid).on('value', snap => {
     const d = snap.val() || {};
     state.balance = Number(d.balance || 0);
     state.ads_today = Number(d.ads_today || 0);
@@ -253,55 +234,42 @@ function initApp(){
     updateUI();
   });
 
-  // ad button
   document.getElementById('watchAdBtn').addEventListener('click', ()=> playRewardedAd());
-
-  // referral share button in profile
-  // shareReferral called by UI btn
+  handleReferralOnOpen();
+  loadLeaderboard();
 }
 
-/* -------------- UI updates -------------- */
+/* UI update */
 function updateUI(){
   document.getElementById('balance').innerText = fmt(state.balance);
   document.getElementById('walletBalance').innerText = fmt(state.balance);
   document.getElementById('adsInfo').innerText = `Ads today: ${state.ads_today}/${DAILY_LIMIT}`;
-  const adsTodayEl = document.getElementById('adsToday');
-  if(adsTodayEl) adsTodayEl.innerText = `Ads today: ${state.ads_today}/${DAILY_LIMIT}`;
+  const adsTodayEl = document.getElementById('adsToday'); if(adsTodayEl) adsTodayEl.innerText = `Ads today: ${state.ads_today}/${DAILY_LIMIT}`;
   document.getElementById('pAds').innerText = state.ads_today;
 }
 
-/* -------------- Atomic reward grant -------------- */
+/* Atomic reward grant */
 function grantRewardAtomic(reward=AD_REWARD){
-  const uRef = rdb.ref('users/' + uid);
-  return uRef.transaction(u => {
+  const uRef = rdb.ref('users/'+uid);
+  return uRef.transaction(u=>{
     if(!u) return u;
     const curDay = todayISO();
-    if(!u.ads_date || u.ads_date !== curDay){
-      u.ads_date = curDay;
-      u.ads_today = 0;
-    }
-    if((u.ads_today||0) >= DAILY_LIMIT){
-      return u; // no change
-    }
+    if(!u.ads_date || u.ads_date !== curDay){ u.ads_date = curDay; u.ads_today = 0; }
+    if((u.ads_today||0) >= DAILY_LIMIT){ return u; }
     u.ads_today = (u.ads_today||0) + 1;
     u.balance = Number(((u.balance||0) + Number(reward)).toFixed(6));
     return u;
-  }, (err, committed, snap) => {
+  }, (err, committed, snap)=>{
     if(err){ console.error(err); alert('Error processing reward.'); return; }
-    if(!committed){ alert(`You reached daily limit (${DAILY_LIMIT}) of ads.`); return; }
-    // record tx
+    if(!committed){ alert(`You reached daily limit (${DAILY_LIMIT}).`); return; }
     const txRef = rdb.ref('transactions').push();
-    txRef.set({ id: txRef.key, uid, type: 'reward', amount: reward, timestamp: Date.now() });
+    txRef.set({ id: txRef.key, uid, type:'reward', amount: reward, timestamp: Date.now() });
   });
 }
 
-/* -------------- Ad SDK detection and play -------------- */
+/* Ad detection & play (looks for show_3927 or other show_* functions) */
 function findAdFn(){
-  // explicit known name often created by script tag data-sdk attr:
-  if(typeof window.show_10088330 === 'function') return window.show_10088330;
-  if(typeof window.show_3068852 === 'function') return window.show_3068852;
-  if(typeof window.show_10016982 === 'function') return window.show_10016982;
-  // generic search
+  if(typeof window.show_3927 === 'function') return window.show_3927;
   for(const k in window){
     if(typeof k === 'string' && k.startsWith('show_') && typeof window[k] === 'function'){
       return window[k];
@@ -311,73 +279,52 @@ function findAdFn(){
 }
 
 async function playRewardedAd(){
-  if(!tg){
-    alert('Open this Mini App inside Telegram to earn rewards.');
-    return;
-  }
-  // quick local limit check
+  if(!tg){ alert('Open this Mini App inside Telegram to earn rewards.'); return; }
   if(state.ads_today >= DAILY_LIMIT){ alert(`Daily limit ${DAILY_LIMIT} reached.`); return; }
 
   const adFn = findAdFn();
-  if(!adFn){
-    alert('Ad SDK not loaded or zone ID incorrect. Check console.');
-    console.warn('No ad fn found on window.'); return;
-  }
+  if(!adFn){ alert('Ad SDK not loaded or zone ID incorrect. Check console.'); console.warn('No ad fn found.'); return; }
 
   try {
-    // try call patterns
     let res;
-    try { res = adFn('pop'); } catch(e1) {
-      try { res = adFn({type:'rewarded'}); } catch(e2) {
-        try { res = adFn(); } catch(e3) { res = undefined; }
-      }
-    }
+    try { res = adFn('pop'); } catch(e1) { try { res = adFn({type:'rewarded'}); } catch(e2){ try { res = adFn(); } catch(e3){ res = undefined; } } }
 
     if(res && typeof res.then === 'function'){
-      await res; // wait for promise resolution
+      await res;
       await grantRewardAtomic(AD_REWARD);
       alert(`✅ You earned ${AD_REWARD} AFN`);
       return;
     }
 
-    // fallback: set common global callback listeners
+    // fallback: common callbacks
     let rewarded = false;
     const cbNames = ['onAdComplete','onReward','on_ad_complete','onRewarded','onAdClosed'];
     const originals = {};
     cbNames.forEach(n => { originals[n] = window[n]; window[n] = function(){ rewarded = true; grantRewardAtomic(AD_REWARD); window[n] = originals[n]; }; });
 
-    // wait a short time for SDK to call callback
     await new Promise(r => setTimeout(r, 7000));
     if(rewarded){ alert(`✅ You earned ${AD_REWARD} AFN`); return; }
 
-    // ask user confirm
     const ok = confirm('If you watched the full ad, press OK to get reward.');
     if(ok){ await grantRewardAtomic(AD_REWARD); alert(`✅ You earned ${AD_REWARD} AFN`); }
     else alert('No reward given.');
-
   } catch(err){
     console.error('Ad play error', err);
     alert('Ad failed: see console.');
   }
 }
 
-/* -------------- Referral handling -------------- */
+/* Referral on open */
 function handleReferralOnOpen(){
   const params = new URLSearchParams(window.location.search);
   const refId = params.get('start') || params.get('ref');
   if(refId && refId !== uid){
     const logKey = `referrals_claimed/${uid}`;
     rdb.ref(logKey).once('value').then(snap=>{
-      if(snap.exists()){ return; } // already credited
-      // credit referrer via transaction
+      if(snap.exists()) return;
       const refUserRef = rdb.ref('users/' + refId);
-      refUserRef.transaction(u =>{
-        if(!u) return u;
-        u.balance = Number(((u.balance||0) + REFERRAL_REWARD).toFixed(6));
-        u.referrals = (u.referrals||0) + 1;
-        return u;
-      }, (err, committed) =>{
-        if(err) console.error('ref tx err',err);
+      refUserRef.transaction(u => { if(!u) return u; u.balance = Number(((u.balance||0) + REFERRAL_REWARD).toFixed(6)); u.referrals = (u.referrals||0) + 1; return u; }, (err, committed) => {
+        if(err) console.error(err);
         if(committed){
           rdb.ref(logKey).set({ refId, ts: Date.now() });
           const txRef = rdb.ref('transactions').push();
@@ -389,7 +336,7 @@ function handleReferralOnOpen(){
   }
 }
 
-/* -------------- Daily Bonus -------------- */
+/* Daily bonus */
 function dailyBonusCheck(){
   const uRef = rdb.ref('users/' + uid);
   uRef.once('value').then(snap=>{
@@ -397,48 +344,30 @@ function dailyBonusCheck(){
     const lastLogin = data.lastLogin || 0;
     const todayStart = new Date().setHours(0,0,0,0);
     if(!lastLogin || lastLogin < todayStart){
-      uRef.transaction(u => {
-        if(!u) return u;
-        u.balance = Number(((u.balance||0) + 1).toFixed(6));
-        u.lastLogin = Date.now();
-        return u;
-      }, (err, committed) => { if(committed) alert('🎁 Daily Bonus: 1 AFN added!'); });
+      uRef.transaction(u => { if(!u) return u; u.balance = Number(((u.balance||0) + 1).toFixed(6)); u.lastLogin = Date.now(); return u; }, (err,committed) => { if(committed) alert('🎁 Daily Bonus: 1 AFN added!'); });
     }
   });
 }
 
-/* -------------- Top-up & Withdraw & Transactions -------------- */
-function loadTransactions(){
-  const el = document.getElementById('txList');
-  el.innerHTML = 'Loading...';
-  rdb.ref('transactions').orderByChild('uid').equalTo(uid).limitToLast(50).once('value').then(snap=>{
-    const arr=[]; snap.forEach(ch=> arr.push(ch.val()));
-    arr.sort((a,b)=> b.timestamp - a.timestamp);
-    if(arr.length===0){ el.innerHTML = '<div class="small">No transactions yet.</div>'; return; }
-    el.innerHTML = arr.map(t => `<div class="tx-item"><strong>${t.type}</strong> — ${fmt(t.amount||0)} AFN<div class="small">${new Date(t.timestamp).toLocaleString()}</div></div>`).join('');
-  }).catch(e=> { el.innerHTML = 'Error loading'; console.error(e); });
-}
+/* Transactions / topup / withdraw */
+function loadTransactions(){ const el = document.getElementById('txList'); el.innerHTML='Loading...'; rdb.ref('transactions').orderByChild('uid').equalTo(uid).limitToLast(50).once('value').then(snap=>{ const arr=[]; snap.forEach(ch=>arr.push(ch.val())); arr.sort((a,b)=> b.timestamp - a.timestamp); if(arr.length===0){ el.innerHTML='<div class="small">No transactions yet.</div>'; return; } el.innerHTML = arr.map(t=>`<div class="tx-item"><strong>${t.type}</strong> — ${fmt(t.amount||0)} AFN<div class="small">${new Date(t.timestamp).toLocaleString()}</div></div>`).join(''); }).catch(e=>{ el.innerHTML='Error loading.'; console.error(e); }); }
 
 function doTopup(){
   if(!tg){ alert('Open inside Telegram to top-up.'); return; }
   const phone = document.getElementById('phone').value.trim();
   const op = document.getElementById('operator').value;
   const amt = Number(document.getElementById('topupAmount').value || 0);
-  const status = document.getElementById('topupStatus');
-  status.innerText = '';
+  const status = document.getElementById('topupStatus'); status.innerText='';
   if(!phone || phone.length < 7){ status.innerText = 'Enter valid phone.'; return; }
   if(amt < 25){ status.innerText = 'Top-up must be at least 25 AFN.'; return; }
   const balRef = rdb.ref('users/' + uid + '/balance');
   balRef.transaction(cur => { if((cur||0) < amt) return; return (cur||0) - amt; }, (err, committed, snap) => {
-    if(err){ status.innerText = 'Error processing top-up.'; console.error(err); return; }
-    if(!committed){ status.innerText = 'Insufficient balance.'; return; }
+    if(err){ status.innerText='Error processing top-up.'; console.error(err); return; }
+    if(!committed){ status.innerText='Insufficient balance.'; return; }
     const txRef = rdb.ref('transactions').push();
     const tx = { id: txRef.key, uid, type:'topup', operator:op, phone, amount:amt, timestamp: Date.now(), status:'success' };
-    txRef.set(tx);
-    rdb.ref('topups').push(tx);
-    status.innerText = `Top-up successful: ${fmt(amt)} AFN → ${phone} (${op})`;
-    loadTransactions();
-    loadBalanceOnce();
+    txRef.set(tx); rdb.ref('topups').push(tx);
+    status.innerText = `Top-up successful: ${fmt(amt)} AFN → ${phone} (${op})`; loadTransactions(); loadBalanceOnce();
   });
 }
 
@@ -446,66 +375,43 @@ function requestWithdraw(){
   if(!tg){ alert('Open inside Telegram to withdraw.'); return; }
   const to = document.getElementById('withdrawTo').value.trim();
   const amt = Number(document.getElementById('withdrawAmount').value || 0);
-  const status = document.getElementById('withdrawStatus');
-  status.innerText = '';
-  if(!to || to.length < 5){ status.innerText = 'Enter destination.'; return; }
-  if(amt <= 0){ status.innerText = 'Enter amount.'; return; }
+  const status = document.getElementById('withdrawStatus'); status.innerText='';
+  if(!to || to.length < 5){ status.innerText='Enter destination.'; return; }
+  if(amt <= 0){ status.innerText='Enter amount.'; return; }
   const balRef = rdb.ref('users/' + uid + '/balance');
-  balRef.transaction(cur => { if((cur||0) < amt) return; return (cur||0) - amt; }, (err, committed) => {
-    if(err){ status.innerText = 'Error.'; console.error(err); return; }
-    if(!committed){ status.innerText = 'Insufficient balance.'; return; }
+  balRef.transaction(cur => { if((cur||0) < amt) return; return (cur||0) - amt; }, (err, committed, snap) => {
+    if(err){ status.innerText='Error.'; console.error(err); return; }
+    if(!committed){ status.innerText='Insufficient balance.'; return; }
     const wRef = rdb.ref('withdraws').push();
     const wobj = { id: wRef.key, uid, to, amount: amt, status: 'pending', timestamp: Date.now() };
-    wRef.set(wobj);
-    const txRef = rdb.ref('transactions').push();
+    wRef.set(wobj); const txRef = rdb.ref('transactions').push();
     txRef.set({ id: txRef.key, uid, type:'withdraw_request', amount: amt, timestamp: Date.now() });
-    status.innerText = 'Withdraw requested (pending).';
-    loadTransactions(); loadBalanceOnce();
+    status.innerText = 'Withdraw requested (pending).'; loadTransactions(); loadBalanceOnce();
   });
 }
 
 function loadBalanceOnce(){ rdb.ref('users/'+uid+'/balance').once('value').then(s=>{ state.balance = Number(s.exists()?s.val():0); updateUI(); }); }
 
-/* -------------- Leaderboard -------------- */
-function loadLeaderboard(){
-  const el = document.getElementById('leaderboardList');
-  el.innerHTML = 'Loading...';
-  rdb.ref('users').orderByChild('balance').limitToLast(10).once('value').then(snap=>{
-    const arr=[]; snap.forEach(ch=> arr.push(ch.val()));
-    arr.sort((a,b)=> (b.balance||0) - (a.balance||0));
-    if(arr.length===0){ el.innerHTML = '<div class="small">No users yet.</div>'; return; }
-    el.innerHTML = arr.map((u,i)=>`<div style="padding:8px 0;border-bottom:1px solid #f4f6f8"><strong>#${i+1} ${u.first_name||u.name||'User'}</strong> — ${fmt(u.balance||0)} AFN</div>`).join('');
-  }).catch(e=> el.innerHTML='Error', console.error(e));
-}
+/* Leaderboard */
+function loadLeaderboard(){ const el = document.getElementById('leaderboardList'); el.innerHTML='Loading...'; rdb.ref('users').orderByChild('balance').limitToLast(10).once('value').then(snap=>{ const arr=[]; snap.forEach(ch=>arr.push(ch.val())); arr.sort((a,b)=> (b.balance||0) - (a.balance||0)); if(arr.length===0){ el.innerHTML='<div class="small">No users yet.</div>'; return; } el.innerHTML = arr.map((u,i)=>`<div style="padding:8px 0;border-bottom:1px solid #f4f6f8"><strong>#${i+1} ${u.first_name||u.name||'User'}</strong> — ${fmt(u.balance||0)} AFN</div>`).join(''); }).catch(e=>el.innerHTML='Error',console.error(e)); }
 
-/* -------------- Profile render & share referral -------------- */
-function renderProfile(){
-  document.getElementById('pName').innerText = tgUser ? (tgUser.first_name||'') + ' ' + (tgUser.last_name||'') : 'Guest';
-  document.getElementById('pUsername').innerText = tgUser ? (tgUser.username||'') : '';
-  document.getElementById('pId').innerText = uid;
-  document.getElementById('pAds').innerText = state.ads_today || 0;
-}
+/* Profile render & share */
+function renderProfile(){ document.getElementById('pName').innerText = tgUser ? (tgUser.first_name||'') + ' ' + (tgUser.last_name||'') : 'Guest'; document.getElementById('pUsername').innerText = tgUser ? (tgUser.username||'') : ''; document.getElementById('pId').innerText = uid; document.getElementById('pAds').innerText = state.ads_today || 0; }
 
-function shareReferral(){
-  if(!tg || !tg.initDataUnsafe || !tg.initDataUnsafe.user){ alert('Open inside Telegram to share referral'); return; }
-  const myId = String(tg.initDataUnsafe.user.id);
-  const botUsername = 'TimuriAppBot'; // <-- REPLACE with your real bot username if different
-  const refLink = `https://t.me/${botUsername}?start=${myId}`;
-  try { tg.shareUrl(refLink); } catch(e){ alert('Share link: ' + refLink); }
-}
+function shareReferral(){ if(!tg || !tg.initDataUnsafe || !tg.initDataUnsafe.user){ alert('Open inside Telegram to share referral'); return; } const myId = String(tg.initDataUnsafe.user.id); const refLink = `https://t.me/${BOT_USERNAME}?start=${myId}`; try{ tg.shareUrl(refLink); } catch(e){ alert('Share link: ' + refLink); } }
 
-/* -------------- Handle referral on open -------------- */
-function handleReferral(){
-  // call on app init
-  handleReferralOnOpen();
-}
+/* Handle referral when page loads */
+function handleReferralOnOpen(){ const params = new URLSearchParams(window.location.search); const refId = params.get('start') || params.get('ref'); if(refId && refId !== uid){ const logKey = `referrals_claimed/${uid}`; rdb.ref(logKey).once('value').then(snap=>{ if(snap.exists()) return; const refUserRef = rdb.ref('users/' + refId); refUserRef.transaction(u => { if(!u) return u; u.balance = Number(((u.balance||0) + REFERRAL_REWARD).toFixed(6)); u.referrals = (u.referrals||0) + 1; return u; }, (err, committed) => { if(err) console.error(err); if(committed){ rdb.ref(logKey).set({ refId, ts: Date.now() }); const txRef = rdb.ref('transactions').push(); txRef.set({ id: txRef.key, uid: refId, type:'referral', amount: REFERRAL_REWARD, from: uid, timestamp: Date.now() }); console.log('Referral credited to', refId); } }); } }
 
-/* -------------- Expose some helpers for debugging -------------- */
+/* Daily bonus on load */
+function dailyBonusCheck(){ const uRef = rdb.ref('users/' + uid); uRef.once('value').then(snap=>{ const data = snap.val() || {}; const lastLogin = data.lastLogin || 0; const todayStart = new Date().setHours(0,0,0,0); if(!lastLogin || lastLogin < todayStart){ uRef.transaction(u=>{ if(!u) return u; u.balance = Number(((u.balance||0) + 1).toFixed(6)); u.lastLogin = Date.now(); return u; }, (err,committed) => { if(committed) alert('🎁 Daily Bonus: 1 AFN added!'); }); } }); }
+
+/* Expose debug helpers */
 window._timuri = { grantRewardAtomic, playRewardedAd, doTopup, requestWithdraw, loadLeaderboard, shareReferral };
 
-/* -------------- run referral handler when loaded -------------- */
-handleReferral();
+/* Run referral handler */
+handleReferralOnOpen();
 
 </script>
 </body>
-</html>
+  </html>
