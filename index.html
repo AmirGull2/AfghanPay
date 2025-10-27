@@ -4,14 +4,21 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Timuri App</title>
+
+  <!-- Telegram SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-  <script src="//libtl.com/sdk.js" data-zone="10102236" data-sdk="show_10102236"></script>
+
+  <!-- LibTL / Montage Ads SDK -->
+  <script src='//libtl.com/sdk.js' data-zone='10102236' data-sdk='show_10102236'></script>
+
   <style>
     body {
       font-family: "Poppins", sans-serif;
-      background: linear-gradient(135deg, #1e293b, #0f172a);
+      background: linear-gradient(135deg, #0f172a, #1e293b);
       color: #fff;
       text-align: center;
       margin: 0;
@@ -19,9 +26,6 @@
     }
     .container {
       padding: 20px;
-    }
-    .profile {
-      margin-top: 20px;
     }
     .profile img {
       width: 90px;
@@ -107,15 +111,19 @@
       document.getElementById("balance").innerText = snap.val() || "0.00";
     });
 
-    // --- Watch Ad (Rewarded) ---
+    // --- Watch Rewarded Ad (Montage / LibTL) ---
     document.getElementById("watchAdBtn").addEventListener("click", () => {
-      show_10088330('pop')
-        .then(() => {
-          let reward = 0.15;
-          balanceRef.transaction((bal) => (bal || 0) + reward);
-          alert("✅ You earned " + reward + " AFN");
-        })
-        .catch((e) => alert("⚠️ Ad Error: " + e.message));
+      if (typeof show_10102236 !== "undefined") {
+        show_10102236('pop')
+          .then(() => {
+            let reward = 0.15;
+            balanceRef.transaction((bal) => (bal || 0) + reward);
+            alert("✅ You earned " + reward + " AFN!");
+          })
+          .catch((err) => alert("⚠️ Ad Error: " + err.message));
+      } else {
+        alert("⚠️ Ads SDK not loaded!");
+      }
     });
 
     // --- Referral System ---
@@ -133,9 +141,9 @@
       refBalanceRef.transaction((bal) => (bal || 0) + 2.0);
     }
 
-    // --- Deposit (Simulation) ---
+    // --- Deposit Button ---
     document.getElementById("depositBtn").addEventListener("click", () => {
-      alert("📱 Mobile Top-up coming soon (min 25 AFN)");
+      alert("📱 Mobile Top-up coming soon (minimum 25 AFN)");
     });
   </script>
 </body>
