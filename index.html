@@ -1,133 +1,142 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Timuri Mini App</title>
-
-<!-- Telegram SDK -->
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-
-<!-- Monetag Ads SDK -->
-<script src="//libtl.com/sdk.js" data-zone="10102842" data-sdk="show_10102842"></script>
-
-<style>
-body { font-family: "Poppins", sans-serif; background: linear-gradient(135deg, #0f172a, #1e293b); color: #fff; text-align:center; margin:0; padding:0; }
-.container { padding:20px; }
-.profile img { width:90px; height:90px; border-radius:50%; border:3px solid #38bdf8; }
-.btn { background:#38bdf8; color:#000; border:none; border-radius:12px; padding:10px 18px; margin:10px; font-weight:bold; cursor:pointer; transition:0.3s; }
-.btn:hover { background:#0ea5e9; }
-.wallet, .leaderboard { background: rgba(255,255,255,0.1); border-radius:15px; padding:10px; margin:20px auto; width:80%; }
-.leaderboard-item { display:flex; justify-content:space-between; padding:5px 10px; border-bottom:1px solid #38bdf8; }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Timuri App</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  <script src="//libtl.com/sdk.js" data-zone="10102842" data-sdk="show_10102842"></script>
+  <style>
+    body {
+      font-family: "Poppins", sans-serif;
+      background: linear-gradient(135deg, #1e293b, #0f172a);
+      color: #fff;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      padding: 20px;
+    }
+    .profile {
+      margin-top: 20px;
+    }
+    .profile img {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      border: 3px solid #38bdf8;
+    }
+    .btn {
+      background: #38bdf8;
+      color: #000;
+      border: none;
+      border-radius: 12px;
+      padding: 10px 18px;
+      margin: 10px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .btn:hover {
+      background: #0ea5e9;
+    }
+    .wallet {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 15px;
+      padding: 10px;
+      margin: 20px auto;
+      width: 80%;
+    }
+  </style>
 </head>
 <body>
+  <div class="container">
+    <h2>💠 Timuri App</h2>
+    <div id="userSection" class="profile">
+      <img id="userPic" src="" alt="Profile" />
+      <h3 id="userName">Loading...</h3>
+    </div>
 
-<div class="container">
-<h2>💠 Timuri Mini App</h2>
-<div id="userSection" class="profile">
-<img id="userPic" src="" alt="Profile" />
-<h3 id="userName">Loading...</h3>
-</div>
+    <div class="wallet">
+      <h3>💰 Wallet: <span id="balance">0.00</span> AFN</h3>
+    </div>
 
-<div class="wallet">
-<h3>💰 Wallet: <span id="balance">0.00</span> AFN</h3>
-</div>
+    <button class="btn" id="watchAdBtn">🎥 Watch Ad (Earn 0.15 AFN)</button>
+    <button class="btn" id="referBtn">🔗 Copy Referral Link</button>
+    <button class="btn" id="depositBtn">📱 Mobile Top-up</button>
+  </div>
 
-<button class="btn" id="watchAdBtn">🎥 Watch Ad (Earn 0.15 AFN)</button>
-<button class="btn" id="referBtn">🔗 Copy Referral Link</button>
-<button class="btn" id="depositBtn">📱 Mobile Top-up</button>
+  <script>
+    // --- Firebase Config ---
+    const firebaseConfig = {
+      apiKey: "AIzaSyDCcKpU-6lPnjn7NSTZVq6R5HGLac2GlAk",
+      authDomain: "zaroratpay.firebaseapp.com",
+      databaseURL: "https://zaroratpay-default-rtdb.firebaseio.com",
+      projectId: "zaroratpay",
+      storageBucket: "zaroratpay.firebasestorage.app",
+      messagingSenderId: "992212281257",
+      appId: "1:992212281257:web:bf5e442cc2636725ee06b8",
+      measurementId: "G-51VT4W8MYZ"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
 
-<div class="leaderboard">
-<h3>🏆 Leaderboard</h3>
-<div id="leaderboardList">Loading...</div>
-</div>
-</div>
+    // --- Telegram Login ---
+    const tg = window.Telegram.WebApp;
+    tg.expand();
 
-<script>
-// --- Firebase Config ---
-const firebaseConfig = {
-apiKey: "AIzaSyDCcKpU-6lPnjn7NSTZVq6R5HGLac2GlAk",
-authDomain: "zaroratpay.firebaseapp.com",
-databaseURL: "https://zaroratpay-default-rtdb.firebaseio.com",
-projectId: "zaroratpay",
-storageBucket: "zaroratpay.firebasestorage.app",
-messagingSenderId: "992212281257",
-appId: "1:992212281257:web:bf5e442cc2636725ee06b8",
-measurementId: "G-51VT4W8MYZ"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
+    let user = tg.initDataUnsafe?.user;
+    let userId, userName, userPic;
 
-// --- Telegram Login ---
-const tg = window.Telegram.WebApp;
-tg.expand();
-let user = tg.initDataUnsafe?.user;
-let userId, userName, userPic;
-if(user){
-userId = user.id;
-userName = user.first_name + " " + (user.last_name || "");
-userPic = user.photo_url || "https://via.placeholder.com/90";
-document.getElementById("userName").innerText = userName;
-document.getElementById("userPic").src = userPic;
-} else {
-document.getElementById("userName").innerText = "Login Failed ❌";
-}
+    if (user) {
+      userId = user.id;
+      userName = user.first_name + " " + (user.last_name || "");
+      userPic = user.photo_url || "https://via.placeholder.com/90";
+      document.getElementById("userName").innerText = userName;
+      document.getElementById("userPic").src = userPic;
+    } else {
+      document.getElementById("userName").innerText = "Login Failed ❌";
+    }
 
-// --- Wallet Load ---
-const balanceRef = db.ref("users/" + userId + "/balance");
-balanceRef.on("value", snap => { document.getElementById("balance").innerText = snap.val() || "0.00"; });
+    // --- Wallet Load ---
+    const balanceRef = db.ref("users/" + userId + "/balance");
+    balanceRef.on("value", (snap) => {
+      document.getElementById("balance").innerText = snap.val() || "0.00";
+    });
 
-// --- Watch Rewarded Ad ---
-document.getElementById("watchAdBtn").addEventListener("click", ()=>{
-if(typeof show_10102842 !== "undefined"){
-show_10102842('pop').then(()=>{
-let reward = 0.15;
-balanceRef.transaction(bal => (bal||0)+reward);
-alert("✅ You earned "+reward+" AFN!");
-}).catch(err=>alert("⚠️ Ad Error: "+err.message));
-} else { alert("⚠️ Ads SDK not loaded!"); }
-});
+    // --- Watch Ad (Rewarded) ---
+    document.getElementById("watchAdBtn").addEventListener("click", () => {
+      show_10088330('pop')
+        .then(() => {
+          let reward = 0.15;
+          balanceRef.transaction((bal) => (bal || 0) + reward);
+          alert("✅ You earned " + reward + " AFN");
+        })
+        .catch((e) => alert("⚠️ Ad Error: " + e.message));
+    });
 
-// --- Referral System ---
-document.getElementById("referBtn").addEventListener("click", ()=>{
-let refLink = `${window.location.origin}?ref=${userId}`;
-navigator.clipboard.writeText(refLink);
-alert("🔗 Referral link copied:\n"+refLink);
-});
+    // --- Referral System ---
+    document.getElementById("referBtn").addEventListener("click", () => {
+      let refLink = `${window.location.origin}?ref=${userId}`;
+      navigator.clipboard.writeText(refLink);
+      alert("🔗 Referral link copied:\n" + refLink);
+    });
 
-// --- Handle Referral Reward ---
-const urlParams = new URLSearchParams(window.location.search);
-const refId = urlParams.get("ref");
-if(refId && refId !== userId){
-const refBalanceRef = db.ref("users/"+refId+"/balance");
-refBalanceRef.transaction(bal => (bal||0)+2.0);
-}
+    // --- Handle Referral Reward ---
+    const urlParams = new URLSearchParams(window.location.search);
+    const refId = urlParams.get("ref");
+    if (refId && refId !== userId) {
+      const refBalanceRef = db.ref("users/" + refId + "/balance");
+      refBalanceRef.transaction((bal) => (bal || 0) + 2.0);
+    }
 
-// --- Deposit Button ---
-document.getElementById("depositBtn").addEventListener("click", ()=>{
-alert("📱 Mobile Top-up coming soon (minimum 25 AFN)");
-});
-
-// --- Leaderboard Load ---
-const leaderboardRef = db.ref("users").orderByChild("balance").limitToLast(10);
-leaderboardRef.on("value", snapshot => {
-const list = document.getElementById("leaderboardList");
-list.innerHTML = "";
-const users = [];
-snapshot.forEach(child => users.push({name: child.val().name||child.key, balance: child.val().balance||0}));
-users.reverse().forEach(u=>{
-const div = document.createElement("div");
-div.className = "leaderboard-item";
-div.innerHTML = `<span>${u.name}</span><span>${u.balance.toFixed(2)} AFN</span>`;
-list.appendChild(div);
-});
-});
-</script>
-
+    // --- Deposit (Simulation) ---
+    document.getElementById("depositBtn").addEventListener("click", () => {
+      alert("📱 Mobile Top-up coming soon (min 25 AFN)");
+    });
+  </script>
 </body>
 </html>
