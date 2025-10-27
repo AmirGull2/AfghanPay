@@ -4,11 +4,16 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Timuri App</title>
+
+  <!-- Telegram WebApp SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
-  <!-- 🟩 Replace zone ID with your actual one -->
+  <!-- Monetag / LibTL SDK -->
+  <!-- 🔹 Change zone ID and SDK to match your actual account -->
   <script src="//libtl.com/sdk.js" data-zone="10102842" data-sdk="show_10102842"></script>
 
   <style>
@@ -22,21 +27,10 @@
     }
     .container { padding: 20px; }
     .profile { margin-top: 20px; }
-    .profile img {
-      width: 90px; height: 90px; border-radius: 50%;
-      border: 3px solid #38bdf8;
-    }
-    .btn {
-      background: #38bdf8; color: #000; border: none;
-      border-radius: 12px; padding: 10px 18px; margin: 10px;
-      font-weight: bold; cursor: pointer; transition: 0.3s;
-    }
+    .profile img { width: 90px; height: 90px; border-radius: 50%; border: 3px solid #38bdf8; }
+    .btn { background: #38bdf8; color: #000; border: none; border-radius: 12px; padding: 10px 18px; margin: 10px; font-weight: bold; cursor: pointer; transition: 0.3s; }
     .btn:hover { background: #0ea5e9; }
-    .wallet {
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 15px; padding: 10px; margin: 20px auto;
-      width: 80%;
-    }
+    .wallet { background: rgba(255,255,255,0.1); border-radius: 15px; padding: 10px; margin: 20px auto; width: 80%; }
   </style>
 </head>
 <body>
@@ -94,7 +88,7 @@
       document.getElementById("balance").innerText = snap.val() || "0.00";
     });
 
-    // --- Watch Ad (Rewarded) ---
+    // --- Watch Ad Button ---
     document.getElementById("watchAdBtn").addEventListener("click", async () => {
       if (typeof show_10102842 !== "function") {
         alert("⚠️ Ads not loaded yet. Please wait a few seconds.");
@@ -102,12 +96,13 @@
       }
 
       try {
-        await show_10102842('pop'); // ✅ must match your data-sdk ID
-        let reward = 0.15;
+        await show_10102842('pop'); // Rewarded Popup
+        let reward = 0.15; 
         balanceRef.transaction((bal) => (bal || 0) + reward);
         alert("✅ You earned " + reward + " AFN");
       } catch (e) {
-        alert("⚠️ Ad Error: " + e.message);
+        console.error("⚠️ Ad Error: ", e.message);
+        alert("⚠️ Ad failed to load.");
       }
     });
 
@@ -126,7 +121,7 @@
       refBalanceRef.transaction((bal) => (bal || 0) + 2.0);
     }
 
-    // --- Deposit (Simulation) ---
+    // --- Deposit Simulation ---
     document.getElementById("depositBtn").addEventListener("click", () => {
       alert("📱 Mobile Top-up coming soon (min 25 AFN)");
     });
