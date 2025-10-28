@@ -1,26 +1,26 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ps">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>AzadPay Mini App — Timuri Reward</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AzadPay Mini App</title>
 
 <!-- Telegram WebApp SDK -->
 <script async src="https://telegram.org/js/telegram-web-app.js"></script>
 
-<!-- Firebase (compat) -->
+<!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
-<!-- Monetag SDK dynamically -->
+<!-- Monetag SDK -->
 <script>
 (function(){
-  const z = '10102842';
-  const s = document.createElement('script');
-  s.src = '//libtl.com/sdk.js';
-  s.setAttribute('data-zone', z);
-  s.setAttribute('data-sdk', 'show_' + z);
-  s.async = true;
+  const z='10102842';
+  const s=document.createElement('script');
+  s.src='//libtl.com/sdk.js';
+  s.setAttribute('data-zone',z);
+  s.setAttribute('data-sdk','show_'+z);
+  s.async=true;
   document.head.appendChild(s);
 })();
 </script>
@@ -29,46 +29,46 @@
 :root{
   --bg1:#0b1220; --bg2:#071428; --card:#081827; --accent:#00c853; --muted:#9fb3c8; --maxw:460px;
 }
-*{box-sizing:border-box}
-body{margin:0;font-family:'Inter', Arial, sans-serif;background:linear-gradient(180deg,var(--bg1),var(--bg2));color:#e6f0f6;display:flex;justify-content:center;padding:18px}
-.app{width:100%;max-width:var(--maxw)}
-.splash{padding:22px;border-radius:14px;text-align:center;background:linear-gradient(135deg,#06293a,#09324a);box-shadow:0 10px 30px rgba(2,6,23,0.6)}
-h1{margin:6px 0 4px;font-size:20px}
-.small{font-size:13px;color:var(--muted)}
-.card{background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));padding:12px;border-radius:12px;margin-top:12px}
-.profile{display:flex;gap:12px;align-items:center}
-.avatar{width:72px;height:72px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.06)}
+*{box-sizing:border-box;}
+body{margin:0;font-family:'Inter',Arial,sans-serif;background:linear-gradient(180deg,var(--bg1),var(--bg2));color:#e6f0f6;display:flex;justify-content:center;padding:18px;}
+.app{width:100%;max-width:var(--maxw);}
+.splash{padding:22px;border-radius:14px;text-align:center;background:linear-gradient(135deg,#06293a,#09324a);box-shadow:0 10px 30px rgba(2,6,23,0.6);}
+h1{margin:6px 0 4px;font-size:20px;}
+.small{font-size:13px;color:var(--muted);}
+.card{background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));padding:12px;border-radius:12px;margin-top:12px;}
+.profile{display:flex;gap:12px;align-items:center;}
+.avatar{width:72px;height:72px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.06);}
 .btn{cursor:pointer;border:0;padding:12px 16px;border-radius:10px;font-weight:700;transition:all 0.2s;}
 .btn:hover{opacity:0.9;}
-.btn-primary{background:var(--accent);color:#002;box-shadow:0 6px 18px rgba(0,200,83,0.12)}
-.btn-ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)}
-.nav{display:flex;gap:8px;position:fixed;left:50%;transform:translateX(-50%);bottom:12px;max-width:var(--maxw);width:100%;padding:6px}
-.nav button{flex:1}
-input,select{width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit;margin-top:8px}
-.row{display:flex;gap:8px}
-.tx-item{padding:8px;border-bottom:1px solid rgba(255,255,255,0.02);font-size:14px}
-.muted{color:var(--muted);font-size:13px}
+.btn-primary{background:var(--accent);color:#002;box-shadow:0 6px 18px rgba(0,200,83,0.12);}
+.btn-ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted);}
+.nav{display:flex;gap:8px;position:fixed;left:50%;transform:translateX(-50%);bottom:12px;max-width:var(--maxw);width:100%;padding:6px;}
+.nav button{flex:1;}
+input,select{width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit;margin-top:8px;}
+.row{display:flex;gap:8px;}
+.tx-item{padding:8px;border-bottom:1px solid rgba(255,255,255,0.02);font-size:14px;}
+.muted{color:var(--muted);font-size:13px;}
 .hidden{display:none !important;}
-footer{margin-top:12px;text-align:center;color:var(--muted);font-size:12px}
+footer{margin-top:12px;text-align:center;color:var(--muted);font-size:12px;}
 </style>
 </head>
 <body>
 <div class="app">
 
-  <!-- Splash / Header -->
+  <!-- Splash -->
   <div id="splash" class="splash">
     <h1>AzadPay — Timuri Rewards</h1>
-    <p class="small">Open inside Telegram (@azad_pay_bot) for auto-login, ads & rewards</p>
+    <p class="small">Open inside Telegram (@azad_pay_bot)</p>
     <div style="margin-top:12px">
       <button class="btn btn-primary" onclick="enterApp()">Open App</button>
       <button class="btn btn-ghost" onclick="openBot()">Open Bot</button>
     </div>
   </div>
 
-  <!-- Main -->
+  <!-- Main App -->
   <div id="main" class="hidden">
 
-    <!-- Profile + quick actions -->
+    <!-- Profile Card -->
     <div class="card">
       <div class="profile">
         <img id="profilePhoto" class="avatar" src="https://i.ibb.co/fxLwLrR/user.png" alt="photo">
@@ -79,7 +79,6 @@ footer{margin-top:12px;text-align:center;color:var(--muted);font-size:12px}
           <div class="small">Ads today: <span id="adsToday">0</span>/100</div>
         </div>
       </div>
-
       <div style="margin-top:12px" class="row">
         <button class="btn btn-primary" id="watchAdBtn">▶︎ Watch Video — Earn 0.15 AFN</button>
         <button class="btn btn-ghost" onclick="claimDailyBonus()">🎁 Daily Bonus</button>
@@ -87,11 +86,10 @@ footer{margin-top:12px;text-align:center;color:var(--muted);font-size:12px}
       <div id="quickMsg" class="small muted" style="margin-top:8px">Invite friends — get 2 AFN per user</div>
     </div>
 
-    <!-- Home -->
+    <!-- Home / Top-up -->
     <div id="home" class="card">
       <h3>Home</h3>
       <p class="small">Watch rewarded videos, earn balance, then Top-up or Withdraw.</p>
-
       <div style="margin-top:10px">
         <h4 class="small">Mobile Top-up</h4>
         <label class="small">Operator</label>
@@ -121,11 +119,10 @@ footer{margin-top:12px;text-align:center;color:var(--muted);font-size:12px}
         <h4 class="small">Transactions</h4>
         <div id="txList" class="small">Loading...</div>
       </div>
-
       <div style="margin-top:12px">
         <h4 class="small">Withdraw</h4>
-        <label class="small">Destination (AfghanPay/Mobile)</label>
-        <input id="withdrawTo" placeholder="Account / Mobile number" />
+        <label class="small">Destination</label>
+        <input id="withdrawTo" placeholder="Account / Mobile" />
         <label class="small">Amount (AFN)</label>
         <input id="withdrawAmount" type="number" min="1" value="100" />
         <div style="margin-top:8px" class="row">
@@ -145,9 +142,9 @@ footer{margin-top:12px;text-align:center;color:var(--muted);font-size:12px}
     <!-- Referral -->
     <div id="referral" class="card hidden">
       <h3>Referral</h3>
-      <div class="small">Invite friends and get <strong>2 AFN</strong> per user (one-time).</div>
+      <div class="small">Invite friends and get <strong>2 AFN</strong> per user</div>
       <div style="margin-top:8px" class="small">Your referral link:</div>
-      <div style="margin-top:8px"><input id="refLink" readonly /></div>
+      <input id="refLink" readonly />
       <div style="margin-top:8px" class="small">Referred users:</div>
       <div id="referredList" class="small">Loading...</div>
     </div>
@@ -175,60 +172,160 @@ footer{margin-top:12px;text-align:center;color:var(--muted);font-size:12px}
   </div>
 
   <footer>© AzadPay • @azad_pay_bot</footer>
+
 </div>
 
 <script>
-/* CONFIG */
-const ZONE_ID = '10102842';
-const REWARD = 0.15;
-const DAILY_LIMIT = 100;
-const REFERRAL_REWARD = 2.0;
-const DAILY_BONUS = 1.0;
-
-/* Firebase */
-const firebaseConfig = {
-  apiKey: "AIzaSyDCcKpU-6lPnjn7NSTZVq6R5HGLac2GlAk",
-  authDomain: "zaroratpay.firebaseapp.com",
-  databaseURL: "https://zaroratpay-default-rtdb.firebaseio.com",
-  projectId: "zaroratpay",
-  storageBucket: "zaroratpay.firebasestorage.app",
-  messagingSenderId: "992212281257",
-  appId: "1:992212281257:web:bf5e442cc2636725ee06b8",
-  measurementId: "G-51VT4W8MYZ"
-};
+/* ============ Config ============ */
+const ZONE_ID='10102842',REWARD=0.15,DAILY_LIMIT=100,REF_REWARD=2.0,DAILY_BONUS=1.0;
+const firebaseConfig={apiKey:"AIzaSyDCcKpU-6lPnjn7NSTZVq6R5HGLac2GlAk",authDomain:"zaroratpay.firebaseapp.com",databaseURL:"https://zaroratpay-default-rtdb.firebaseio.com",projectId:"zaroratpay",storageBucket:"zaroratpay.appspot.com",messagingSenderId:"992212281257",appId:"1:992212281257:web:bf5e442cc2636725ee06b8",measurementId:"G-51VT4W8MYZ"};
 firebase.initializeApp(firebaseConfig);
-const rdb = firebase.database();
+const rdb=firebase.database();
 
 /* Telegram */
-let tg=null; try{ tg=window.Telegram.WebApp; tg.expand(); }catch(e){ tg=null; }
+let tg=null; try{tg=window.Telegram.WebApp; tg.expand();}catch(e){tg=null;}
+let uid='guest_'+Math.floor(Math.random()*999999);
 
-/* STATE */
-let currentUser=null; let uid=null;
-const splashEl=document.getElementById('splash');
-const mainEl=document.getElementById('main');
-const profilePhoto=document.getElementById('profilePhoto');
+/* State */
+let adsWatchedToday=0;
+
+/* Elements */
+const balanceEl=document.getElementById('balance');
+const walletBalanceEl=document.getElementById('walletBalance');
+const adsTodayEl=document.getElementById('adsToday');
 const profileName=document.getElementById('profileName');
 const profileUsername=document.getElementById('profileUsername');
-const balanceEl=document.getElementById('balance');
-const adsTodayEl=document.getElementById('adsToday');
-const watchAdBtn=document.getElementById('watchAdBtn');
-const refLinkInput=document.getElementById('refLink');
+const refLinkEl=document.getElementById('refLink');
 const referredListEl=document.getElementById('referredList');
 const leaderboardListEl=document.getElementById('leaderboardList');
-const txListEl=document.getElementById('txList');
-const walletBalanceEl=document.getElementById('walletBalance');
 
-/* ---------- helpers ---------- */
-function enterApp(){ splashEl.classList.add('hidden'); mainEl.classList.remove('hidden'); initApp(); }
-function openBot(){ window.open('https://t.me/azad_pay_bot','_blank'); }
-function showSection(id){
-  ['home','wallet','leaderboard','referral','settings'].forEach(s=>document.getElementById(s).classList.toggle('hidden',s!==id));
-  if(id==='wallet') loadTransactions();
-  if(id==='leaderboard') loadLeaderboard();
-  if(id==='referral') loadReferredList();
+/* ============ Functions ============ */
+function enterApp(){document.getElementById('splash').classList.add('hidden');document.getElementById('main').classList.remove('hidden');initApp();}
+function openBot(){window.open('https://t.me/azad_pay_bot','_blank');}
+function showSection(id){['home','wallet','leaderboard','referral','settings'].forEach(s=>document.getElementById(s).classList.toggle('hidden',s!==id));}
+
+/* Init */
+function initApp(){
+  // Load or create user in Firebase
+  const userRef=rdb.ref('users/'+uid);
+  userRef.once('value').then(snap=>{
+    if(!snap.exists()){
+      userRef.set({name:'Guest',balance:0,adsToday:0,ref:'',referred:{}});
+    } else {
+      const data=snap.val();
+      profileName.textContent=data.name;
+      balanceEl.textContent=data.balance.toFixed(2);
+      adsWatchedToday=data.adsToday;
+      adsTodayEl.textContent=adsWatchedToday;
+      if(data.ref){refLinkEl.value=window.location.href+'?ref='+uid;}
+      updateLeaderboard();
+      updateReferralList();
+    }
+  });
 }
 
-/* find ad fn */
-function findAdFn(){
+/* Ad reward */
+document.getElementById('watchAdBtn').onclick=function(){
   const fn='show_'+ZONE_ID;
-  if(window[fn] && typeof window[fn]==
+  if(window[fn]){window[fn]('pop').then(()=>{earn(REWARD);}).catch(()=>{});}
+  else alert('Ad not loaded yet');
+};
+
+/* Earn money */
+function earn(amount){
+  adsWatchedToday++;
+  let bal=parseFloat(balanceEl.textContent);
+  bal+=amount;
+  balanceEl.textContent=bal.toFixed(2);
+  walletBalanceEl.textContent=bal.toFixed(2);
+  adsTodayEl.textContent=adsWatchedToday;
+  addTx('Ad reward',amount);
+  rdb.ref('users/'+uid).update({balance:bal,adsToday:adsWatchedToday});
+  updateLeaderboard();
+}
+
+/* Daily bonus */
+function claimDailyBonus(){earn(DAILY_BONUS);}
+
+/* Transactions */
+function addTx(title,amount){
+  const txList=document.getElementById('txList');
+  const div=document.createElement('div'); div.className='tx-item';
+  div.textContent=`${title} +${amount.toFixed(2)} AFN`;
+  txList.prepend(div);
+}
+
+/* Topup */
+function doTopup(){
+  const phone=document.getElementById('topupPhone').value;
+  const op=document.getElementById('operator').value;
+  const amt=parseFloat(document.getElementById('topupAmount').value);
+  if(phone.length<8){alert('Enter valid phone'); return;}
+  if(amt<25){alert('Minimum 25 AFN'); return;}
+  let bal=parseFloat(balanceEl.textContent);
+  if(bal<amt){alert('Insufficient balance'); return;}
+  bal-=amt;
+  balanceEl.textContent=bal.toFixed(2);
+  walletBalanceEl.textContent=bal.toFixed(2);
+  addTx(`Top-up ${phone} (${op})`,amt);
+  document.getElementById('topupStatus').textContent='Top-up success!';
+  rdb.ref('users/'+uid).update({balance:bal});
+}
+
+/* Withdraw */
+function requestWithdraw(){
+  const to=document.getElementById('withdrawTo').value;
+  const amt=parseFloat(document.getElementById('withdrawAmount').value);
+  if(!to){alert('Enter destination'); return;}
+  let bal=parseFloat(balanceEl.textContent);
+  if(bal<amt){alert('Insufficient balance'); return;}
+  bal-=amt;
+  balanceEl.textContent=bal.toFixed(2);
+  walletBalanceEl.textContent=bal.toFixed(2);
+  addTx(`Withdraw to ${to}`,amt);
+  document.getElementById('withdrawStatus').textContent='Withdraw requested!';
+  rdb.ref('users/'+uid).update({balance:bal});
+  updateLeaderboard();
+}
+
+/* Settings */
+function saveSettings(){
+  const n=document.getElementById('setName').value;
+  if(n){
+    profileName.textContent=n;
+    document.getElementById('settingsMsg').textContent='Saved!';
+    rdb.ref('users/'+uid).update({name:n});
+    updateLeaderboard();
+  }
+}
+function resetName(){document.getElementById('setName').value=''; profileName.textContent='Guest';document.getElementById('settingsMsg').textContent='Reset!';}
+
+/* Leaderboard */
+function updateLeaderboard(){
+  rdb.ref('users').orderByChild('balance').limitToLast(10).once('value').then(snap=>{
+    let html='';
+    const arr=[];
+    snap.forEach(s=>{arr.push(s.val());});
+    arr.sort((a,b)=>b.balance-a.balance);
+    arr.forEach(u=>{
+      html+=`<div class="tx-item">${u.name}: ${u.balance.toFixed(2)} AFN</div>`;
+    });
+    leaderboardListEl.innerHTML=html;
+  });
+}
+
+/* Referral */
+function updateReferralList(){
+  rdb.ref('users/'+uid+'/referred').once('value').then(snap=>{
+    const refUsers=snap.val()||{};
+    let html='';
+    Object.keys(refUsers).forEach(k=>{
+      html+=`<div class="tx-item">${refUsers[k].name || k} +${REF_REWARD.toFixed(2)} AFN</div>`;
+    });
+    referredListEl.innerHTML=html;
+    refLinkEl.value=window.location.href+'?ref='+uid;
+  });
+}
+</script>
+</body>
+</html>
