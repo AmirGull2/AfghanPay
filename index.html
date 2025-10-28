@@ -1,130 +1,366 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="ps">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Timuri App</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Timuri — Real Rewarded Ads</title>
 
-  <!-- Telegram WebApp SDK -->
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<!-- Telegram WebApp SDK -->
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<!-- Firebase (compat) -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
-  <!-- Monetag / LibTL SDK -->
-  <!-- 🔹 Change zone ID and SDK to match your actual account -->
-  <script src="//libtl.com/sdk.js" data-zone="10102842" data-sdk="show_10102842"></script>
+<!-- Monetag / LibTL SDK (replace ZONE_ID if needed) -->
+<!-- IMPORTANT: Replace ZONE_ID below with your actual Monetag zone id -->
+<script>
+  const ZONE_ID = '10102842'; // <<< CHANGE THIS if your zone id differs
+  (function(){
+    const s = document.createElement('script');
+    s.src = `//libtl.com/sdk.js`;
+    s.setAttribute('data-zone', 10102842);
+    s.setAttribute('data-sdk', `show_${10102842}`);
+    s.async = true;
+    document.head.appendChild(s);
+  })();
+</script>
 
-  <style>
-    body {
-      font-family: "Poppins", sans-serif;
-      background: linear-gradient(135deg, #1e293b, #0f172a);
-      color: #fff;
-      text-align: center;
-      margin: 0;
-      padding: 0;
-    }
-    .container { padding: 20px; }
-    .profile { margin-top: 20px; }
-    .profile img { width: 90px; height: 90px; border-radius: 50%; border: 3px solid #38bdf8; }
-    .btn { background: #38bdf8; color: #000; border: none; border-radius: 12px; padding: 10px 18px; margin: 10px; font-weight: bold; cursor: pointer; transition: 0.3s; }
-    .btn:hover { background: #0ea5e9; }
-    .wallet { background: rgba(255,255,255,0.1); border-radius: 15px; padding: 10px; margin: 20px auto; width: 80%; }
-  </style>
+<style>
+  :root{--card:#0b1220;--accent:#00c853}
+  body{font-family:Inter,system-ui,Arial;margin:0;background:linear-gradient(180deg,#071428,#0b1220);color:#fff;display:flex;justify-content:center;align-items:flex-start;padding:28px 12px;min-height:100vh}
+  .app{width:100%;max-width:420px}
+  .card{background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));border-radius:16px;padding:18px;box-shadow:0 10px 30px rgba(2,6,23,0.6)}
+  h1{font-size:20px;margin:0 0 8px}
+  .profile{display:flex;gap:12px;align-items:center}
+  .avatar{width:66px;height:66px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.06)}
+  .meta{flex:1;text-align:left}
+  .balance{margin-top:12px;background:rgba(255,255,255,0.03);padding:10px;border-radius:10px;font-weight:600}
+  .btn{width:100%;padding:14px;border-radius:12px;border:0;margin-top:12px;font-weight:700;background:var(--accent);color:#001;cursor:pointer}
+  .muted{color:#aeb8c6;font-size:13px;margin-top:8px}
+  .small{font-size:13px;color:#cbd5e1}
+  .danger{background:#ff6b6b;color:#fff}
+  .row{display:flex;gap:8px}
+  footer{margin-top:14px;font-size:12px;color:#94a3b8;text-align:center}
+</style>
 </head>
 <body>
-  <div class="container">
-    <h2>💠 Timuri App</h2>
-    <div id="userSection" class="profile">
-      <img id="userPic" src="" alt="Profile" />
-      <h3 id="userName">Loading...</h3>
-    </div>
+  <div class="app">
+    <div class="card">
+      <h1>🎬 Timuri — Real Rewarded Video</h1>
 
-    <div class="wallet">
-      <h3>💰 Wallet: <span id="balance">0.00</span> AFN</h3>
-    </div>
+      <div id="profileArea" class="profile">
+        <img id="avatar" class="avatar" src="https://i.ibb.co/fxLwLrR/user.png" alt="avatar">
+        <div class="meta">
+          <div id="username" class="small">Telegram login required</div>
+          <div id="userid" class="small muted"></div>
+        </div>
+      </div>
 
-    <button class="btn" id="watchAdBtn">🎥 Watch Ad (Earn 0.15 AFN)</button>
-    <button class="btn" id="referBtn">🔗 Copy Referral Link</button>
-    <button class="btn" id="depositBtn">📱 Mobile Top-up</button>
+      <div id="balanceBox" class="balance">💰 موجودي: <span id="balance">0.00</span> AFN</div>
+
+      <button id="watchBtn" class="btn">▶︎ ویډیو وګوره — 0.15 AFN</button>
+      <div id="status" class="muted small">حالت: تیار</div>
+      <div class="muted small">• روزانه حد: <span id="limit">20</span> ویډیو/ورځ</div>
+
+      <div style="margin-top:12px" class="row">
+        <button id="shareBtn" class="btn" style="flex:1;background:#60a5fa;color:#012">شریکول</button>
+        <button id="txBtn" class="btn" style="flex:1;background:#94a3b8;color:#001">تراکنشونه</button>
+      </div>
+
+      <div id="txList" style="margin-top:12px;display:none"></div>
+
+      <footer>Timuri • Powered by Monetag & Firebase</footer>
+    </div>
   </div>
 
-  <script>
-    // --- Firebase Config ---
-    const firebaseConfig = {
-      apiKey: "AIzaSyDCcKpU-6lPnjn7NSTZVq6R5HGLac2GlAk",
-      authDomain: "zaroratpay.firebaseapp.com",
-      databaseURL: "https://zaroratpay-default-rtdb.firebaseio.com",
-      projectId: "zaroratpay",
-      storageBucket: "zaroratpay.firebasestorage.app",
-      messagingSenderId: "992212281257",
-      appId: "1:992212281257:web:bf5e442cc2636725ee06b8",
-      measurementId: "G-51VT4W8MYZ"
+<script>
+/* ================= CONFIG ================= */
+const ZONE_ID = window.ZONE_ID || '10102842'; // ensure same as script
+const SHOW_FN_NAME = `show_${10102842}`;      // typical global fn name created by SDK
+const REWARD_AMOUNT = 0.15;                  // AFN per completed video
+const DAILY_LIMIT = 20;                      // per-user daily cap
+
+/* Firebase config (user provided) */
+const firebaseConfig = {
+  apiKey: "AIzaSyDCcKpU-6lPnjn7NSTZVq6R5HGLac2GlAk",
+  authDomain: "zaroratpay.firebaseapp.com",
+  databaseURL: "https://zaroratpay-default-rtdb.firebaseio.com",
+  projectId: "zaroratpay",
+  storageBucket: "zaroratpay.firebasestorage.app",
+  messagingSenderId: "992212281257",
+  appId: "1:992212281257:web:bf5e442cc2636725ee06b8",
+  measurementId: "G-51VT4W8MYZ"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+/* Telegram WebApp */
+let tg = null;
+try { tg = window.Telegram.WebApp; tg.expand(); } catch(e){ tg = null; }
+
+/* local state */
+let telegramUser = null;
+let uid = null;
+let dailyKey = null;
+
+/* UI elements */
+const avatarEl = document.getElementById('avatar');
+const usernameEl = document.getElementById('username');
+const useridEl = document.getElementById('userid');
+const balanceEl = document.getElementById('balance');
+const watchBtn = document.getElementById('watchBtn');
+const statusEl = document.getElementById('status');
+const txBtn = document.getElementById('txBtn');
+const txList = document.getElementById('txList');
+const shareBtn = document.getElementById('shareBtn');
+const limitEl = document.getElementById('limit');
+limitEl.innerText = DAILY_LIMIT;
+
+/* ----------------- Helpers ----------------- */
+
+function log(...args){ console.log('[Timuri]', ...args); }
+function setStatus(s){ statusEl.innerText = 'حالت: ' + s; }
+
+/* get ad function if available */
+function findAdFunction(){
+  if(window[SHOW_FN_NAME] && typeof window[SHOW_FN_NAME] === 'function') return window[SHOW_FN_NAME];
+  // search generic show_*
+  for(const k in window){
+    if(k.startsWith && typeof k === 'string' && k.startsWith('show_') && typeof window[k] === 'function'){
+      log('Using ad function:', k);
+      return window[k];
+    }
+  }
+  return null;
+}
+
+/* atomic reward transaction on Firebase */
+function grantRewardAtomic(userId, amount){
+  const userRef = db.ref('users/' + userId);
+  const today = new Date(); const dayKey = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+  return userRef.transaction(u=>{
+    if(!u){
+      // initialize
+      u = { balance: 0, ads_today: 0, ads_date: dayKey, name: telegramUser?.first_name || 'User' };
+    }
+    // reset daily if needed
+    if(!u.ads_date || u.ads_date !== dayKey){
+      u.ads_date = dayKey;
+      u.ads_today = 0;
+    }
+    if((u.ads_today || 0) >= DAILY_LIMIT){
+      // reach limit: abort transaction by returning undefined (no change)
+      return;
+    }
+    u.ads_today = (u.ads_today || 0) + 1;
+    u.balance = Number(((u.balance || 0) + amount).toFixed(6));
+    // also increase total earned
+    u.total_earned = Number(((u.total_earned || 0) + amount).toFixed(6));
+    return u;
+  }, (err, committed, snap)=>{
+    if(err){
+      log('Transaction error', err);
+      setStatus('Transaction error');
+      return;
+    }
+    if(!committed){
+      // not committed = likely daily limit reached
+      setStatus('د ورځي حد پوره شو');
+      alert('تاسو د نن ورځې حد ته ورسېدئ.');
+      return;
+    }
+    // record transaction
+    const txRef = db.ref('transactions').push();
+    const tx = {
+      uid: userId,
+      type: 'reward',
+      amount: amount,
+      zone: ZONE_ID,
+      timestamp: Date.now()
     };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+    txRef.set(tx);
+    setStatus('Reward ثبت شو');
+    log('Reward granted and tx recorded', tx);
+  });
+}
 
-    // --- Telegram Login ---
-    const tg = window.Telegram.WebApp;
-    tg.expand();
+/* increment impression count (for analytics) */
+function recordImpression(zone=ZONE_ID){
+  const statsRef = db.ref('stats/impressions/' + zone);
+  statsRef.transaction(v => (v || 0) + 1);
+}
 
-    let user = tg.initDataUnsafe?.user;
-    let userId, userName, userPic;
+/* load UI balance & daily count */
+function startUserSync(userId){
+  const uRef = db.ref('users/' + userId);
+  uRef.on('value', snap=>{
+    const data = snap.val() || {};
+    balanceEl.innerText = (data.balance || 0).toFixed(2);
+    // update UI limit text
+    setStatus(`اعلانونه نن: ${ (data.ads_today || 0) }`);
+  });
+  // load last 20 txs
+  db.ref('transactions').orderByChild('uid').equalTo(userId).limitToLast(20).once('value').then(snap=>{
+    const arr = []; snap.forEach(c=>arr.push(c.val()));
+    if(arr.length===0) txList.innerHTML = '<div class="small muted">No transactions yet.</div>';
+    else txList.innerHTML = arr.reverse().map(t => `<div style="padding:6px;border-bottom:1px solid rgba(255,255,255,0.03)">${new Date(t.timestamp).toLocaleString()} — ${t.type} — ${t.amount} AFN</div>`).join('');
+  });
+}
 
-    if (user) {
-      userId = user.id;
-      userName = user.first_name + " " + (user.last_name || "");
-      userPic = user.photo_url || "https://via.placeholder.com/90";
-      document.getElementById("userName").innerText = userName;
-      document.getElementById("userPic").src = userPic;
+/* prevent rapid repeated claim attempts */
+let lastAdStart = 0;
+
+/* ----------------- App Init ----------------- */
+
+function initFromTelegram(){
+  try{
+    if(tg && tg.initDataUnsafe && tg.initDataUnsafe.user){
+      telegramUser = tg.initDataUnsafe.user;
+      uid = String(telegramUser.id);
+      avatarEl.src = telegramUser.photo_url || avatarEl.src;
+      usernameEl.innerText = (telegramUser.first_name || 'User') + (telegramUser.username ? (' @' + telegramUser.username) : '');
+      useridEl.innerText = 'Telegram ID: ' + uid;
+      setStatus('Logged in as Telegram user');
+      startUserSync(uid);
+      // handle referral param if any
+      const params = new URLSearchParams(window.location.search);
+      const ref = params.get('start') || params.get('ref');
+      if(ref && ref !== uid){
+        // credit referrer one-time
+        const claimRef = db.ref(`ref_claims/${uid}`);
+        claimRef.once('value').then(s=>{
+          if(s.exists()) return;
+          // credit ref
+          const refUserRef = db.ref('users/' + ref);
+          refUserRef.transaction(u => {
+            if(!u) return u;
+            u.balance = Number(((u.balance||0) + (2)).toFixed(6));
+            u.referrals = (u.referrals||0) + 1;
+            return u;
+          }, (err, committed)=> { if(committed){ db.ref('transactions').push({ uid: ref, type:'referral', amount:2, from: uid, timestamp:Date.now() }); claimRef.set(true); }});
+        });
+      }
     } else {
-      document.getElementById("userName").innerText = "Login Failed ❌";
+      setStatus('Open from Telegram to login');
+    }
+  }catch(e){ console.error(e); setStatus('Telegram init error'); }
+}
+
+/* ----------------- Ad flow ----------------- */
+
+async function playRewarded(){
+  if(!uid){ alert('لطفاً د Telegram له لارې ننوزئ.'); return; }
+  // daily check quick local - also handled on server via transaction
+  const uSnap = await db.ref('users/' + uid).once('value');
+  const u = uSnap.val() || {};
+  const today = new Date(); const dayKey = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+  if(u.ads_date !== dayKey && u.ads_today) { /* ignore: will be fixed by transaction */ }
+  if((u.ads_today || 0) >= DAILY_LIMIT){ alert('د نن ورځې حد پوره شو'); return; }
+
+  const adFn = findAdFunction();
+  if(!adFn){
+    alert('Ad SDK نه دی چمتو شوی (zone id/SDK twig check).');
+    setStatus('Ad SDK not ready');
+    return;
+  }
+
+  // prevent super-fast re-clicks
+  const now = Date.now();
+  if(now - lastAdStart < 5000){
+    alert('لطفاً لږ صبر وکړئ مخکې له دې چې بل اعلان وګورئ.');
+    return;
+  }
+  lastAdStart = now;
+
+  // record impression (ad opened)
+  recordImpression();
+
+  setStatus('Ad loading…');
+  let rewarded = false;
+  // Try calling patterns and handle promise or callbacks
+  try {
+    // 1) try typical call returning a Promise: show_ZONE('pop') or show_ZONE()
+    let res;
+    try { res = adFn('pop'); } catch(e1){
+      try { res = adFn({ type: 'rewarded' }); } catch(e2){
+        try { res = adFn(); } catch(e3){ res = undefined; }
+      }
     }
 
-    // --- Wallet Load ---
-    const balanceRef = db.ref("users/" + userId + "/balance");
-    balanceRef.on("value", (snap) => {
-      document.getElementById("balance").innerText = snap.val() || "0.00";
-    });
-
-    // --- Watch Ad Button ---
-    document.getElementById("watchAdBtn").addEventListener("click", async () => {
-      if (typeof show_10102842 !== "function") {
-        alert("⚠️ Ads not loaded yet. Please wait a few seconds.");
-        return;
-      }
-
-      try {
-        await show_10102842('pop'); // Rewarded Popup
-        let reward = 0.15; 
-        balanceRef.transaction((bal) => (bal || 0) + reward);
-        alert("✅ You earned " + reward + " AFN");
-      } catch (e) {
-        console.error("⚠️ Ad Error: ", e.message);
-        alert("⚠️ Ad failed to load.");
-      }
-    });
-
-    // --- Referral System ---
-    document.getElementById("referBtn").addEventListener("click", () => {
-      let refLink = `${window.location.origin}?ref=${userId}`;
-      navigator.clipboard.writeText(refLink);
-      alert("🔗 Referral link copied:\n" + refLink);
-    });
-
-    // --- Handle Referral Reward ---
-    const urlParams = new URLSearchParams(window.location.search);
-    const refId = urlParams.get("ref");
-    if (refId && refId !== userId) {
-      const refBalanceRef = db.ref("users/" + refId + "/balance");
-      refBalanceRef.transaction((bal) => (bal || 0) + 2.0);
+    if(res && typeof res.then === 'function'){
+      setStatus('Playing ad (promise) …');
+      await res; // resolves when ad complete
+      rewarded = true;
+      setStatus('Ad completed (promise)');
+    } else {
+      // 2) fallback: listen to common global callbacks created by some SDKs
+      setStatus('Playing ad (callback mode) …');
+      const cbNames = ['onAdComplete','onReward','on_ad_complete','onRewarded','onAdClosed','onMonetagReward'];
+      const originals = {};
+      let cbTimer;
+      for(const n of cbNames){ originals[n] = window[n]; window[n] = function(){ rewarded = true; clearTimeout(cbTimer); /* restore later */ }} ;
+      // call ad
+      try { adFn(); } catch(e){ console.warn('adFn call error',e); }
+      // wait up to 25s for callback
+      await new Promise((res) => cbTimer = setTimeout(res, 25000));
+      // restore callbacks
+      for(const n of cbNames){ window[n] = originals[n]; }
+      if(rewarded) setStatus('Ad completed (callback)');
     }
 
-    // --- Deposit Simulation ---
-    document.getElementById("depositBtn").addEventListener("click", () => {
-      alert("📱 Mobile Top-up coming soon (min 25 AFN)");
-    });
-  </script>
+    if(rewarded){
+      // grant reward atomically
+      await grantRewardAtomic(uid, REWARD_AMOUNT);
+      alert(`✅ تبریک! تاسو ${REWARD_AMOUNT.toFixed(2)} AFN ترلاسه کړل.`);
+    } else {
+      setStatus('Ad not completed — no reward');
+      alert('ویډیو بشپړې نه شوه یا تایید نه شوه — انعام نشي ورکول کېدای.');
+    }
+
+  } catch(err){
+    console.error('Ad flow error', err);
+    setStatus('Ad error');
+    alert('د اعلان په چلولو کې تېروتنه وشوه: ' + (err && err.message ? err.message : err));
+  }
+}
+
+/* ----------------- Buttons ----------------- */
+
+watchBtn.addEventListener('click', ()=> {
+  setStatus('د اعلان لپاره چمتو کېږئ…');
+  playRewarded();
+});
+
+shareBtn.addEventListener('click', ()=>{
+  if(!tg || !tg.initDataUnsafe || !tg.initDataUnsafe.user){ alert('Open inside Telegram to share'); return; }
+  const myId = String(tg.initDataUnsafe.user.id);
+  const botUsername = 'TimuriAppBot'; // <<< CHANGE to your bot username
+  const link = `https://t.me/${botUsername}?start=${myId}`;
+  try { tg.shareUrl(link); } catch(e){ navigator.clipboard.writeText(link); alert('Referral link copied: ' + link); }
+});
+
+txBtn.addEventListener('click', ()=> {
+  txList.style.display = txList.style.display === 'none' ? 'block' : 'none';
+});
+
+/* ----------------- Kickoff ----------------- */
+initFromTelegram();
+
+/* if user not opened via Telegram, show Telegram login widget fallback */
+if(!tg || !tg.initDataUnsafe || !tg.initDataUnsafe.user){
+  // create Telegram login fallback button (will redirect to bot login URL)
+  const btn = document.createElement('button');
+  btn.className = 'btn';
+  btn.style.marginTop = '10px';
+  btn.textContent = '🔐 د Telegram له لارې ننوزئ';
+  btn.onclick = ()=> {
+    // open bot (Bot must have Web App button configured)
+    const botUrl = 'https://t.me/TimuriAppBot'; // <<< CHANGE to your bot url
+    window.open(botUrl, '_blank');
+  };
+  document.querySelector('.card').appendChild(btn);
+}
+</script>
 </body>
 </html>
