@@ -1,193 +1,191 @@
 <!doctype html>
 <html lang="ps">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>AzadPay Mini App — Timuri Reward</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>AzadPay Mini App — Timuri Reward</title>
 
-  <!-- Telegram WebApp SDK -->
-  <script async src="https://telegram.org/js/telegram-web-app.js"></script>
+<!-- Telegram WebApp SDK -->
+<script async src="https://telegram.org/js/telegram-web-app.js"></script>
 
-  <!-- Firebase (compat - simpler) -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<!-- Firebase (compat) -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
-  <!-- Monetag (LibTL) SDK dynamically inserted below (zone 10102842) -->
-  <script>
-    // dynamically add monetag script for the zone (keeps head cleaner)
-    (function(){
-      const z = '10102842';
-      const s = document.createElement('script');
-      s.src = '//libtl.com/sdk.js';
-      s.setAttribute('data-zone', z);
-      s.setAttribute('data-sdk', 'show_' + z);
-      s.async = true;
-      document.head.appendChild(s);
-    })();
-  </script>
+<!-- Monetag SDK dynamically -->
+<script>
+(function(){
+  const z = '10102842';
+  const s = document.createElement('script');
+  s.src = '//libtl.com/sdk.js';
+  s.setAttribute('data-zone', z);
+  s.setAttribute('data-sdk', 'show_' + z);
+  s.async = true;
+  document.head.appendChild(s);
+})();
+</script>
 
-  <style>
-    :root{
-      --bg1:#0b1220; --bg2:#071428; --card:#081827; --accent:#00c853; --muted:#9fb3c8;
-      --maxw:460px;
-    }
-    *{box-sizing:border-box}
-    body{margin:0;font-family:Inter, system-ui, Arial;background:linear-gradient(180deg,var(--bg1),var(--bg2));color:#e6f0f6;display:flex;justify-content:center;padding:18px}
-    .app{width:100%;max-width:var(--maxw)}
-    .splash{padding:22px;border-radius:14px;text-align:center;background:linear-gradient(135deg,#06293a,#09324a);box-shadow:0 10px 30px rgba(2,6,23,0.6)}
-    h1{margin:6px 0 4px;font-size:20px}
-    .small{font-size:13px;color:var(--muted)}
-    .card{background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));padding:12px;border-radius:12px;margin-top:12px}
-    .profile{display:flex;gap:12px;align-items:center}
-    .avatar{width:72px;height:72px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.06)}
-    .btn{cursor:pointer;border:0;padding:10px 12px;border-radius:10px;font-weight:700}
-    .btn-primary{background:var(--accent);color:#002;box-shadow:0 6px 18px rgba(0,200,83,0.12)}
-    .btn-ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)}
-    .nav{display:flex;gap:8px;position:fixed;left:50%;transform:translateX(-50%);bottom:12px;max-width:var(--maxw);width:100%;padding:6px}
-    .nav button{flex:1}
-    input,select{width:100%;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit;margin-top:8px}
-    .row{display:flex;gap:8px}
-    .tx-item{padding:8px;border-bottom:1px solid rgba(255,255,255,0.02);font-size:14px}
-    .muted{color:var(--muted);font-size:13px}
-    .hidden{display:none}
-    footer{margin-top:12px;text-align:center;color:var(--muted);font-size:12px}
-  </style>
+<style>
+:root{
+  --bg1:#0b1220; --bg2:#071428; --card:#081827; --accent:#00c853; --muted:#9fb3c8; --maxw:460px;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:'Inter', Arial, sans-serif;background:linear-gradient(180deg,var(--bg1),var(--bg2));color:#e6f0f6;display:flex;justify-content:center;padding:18px}
+.app{width:100%;max-width:var(--maxw)}
+.splash{padding:22px;border-radius:14px;text-align:center;background:linear-gradient(135deg,#06293a,#09324a);box-shadow:0 10px 30px rgba(2,6,23,0.6)}
+h1{margin:6px 0 4px;font-size:20px}
+.small{font-size:13px;color:var(--muted)}
+.card{background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));padding:12px;border-radius:12px;margin-top:12px}
+.profile{display:flex;gap:12px;align-items:center}
+.avatar{width:72px;height:72px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.06)}
+.btn{cursor:pointer;border:0;padding:12px 16px;border-radius:10px;font-weight:700;transition:all 0.2s;}
+.btn:hover{opacity:0.9;}
+.btn-primary{background:var(--accent);color:#002;box-shadow:0 6px 18px rgba(0,200,83,0.12)}
+.btn-ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)}
+.nav{display:flex;gap:8px;position:fixed;left:50%;transform:translateX(-50%);bottom:12px;max-width:var(--maxw);width:100%;padding:6px}
+.nav button{flex:1}
+input,select{width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit;margin-top:8px}
+.row{display:flex;gap:8px}
+.tx-item{padding:8px;border-bottom:1px solid rgba(255,255,255,0.02);font-size:14px}
+.muted{color:var(--muted);font-size:13px}
+.hidden{display:none !important;}
+footer{margin-top:12px;text-align:center;color:var(--muted);font-size:12px}
+</style>
 </head>
 <body>
-  <div class="app">
+<div class="app">
 
-    <!-- Splash / Header -->
-    <div id="splash" class="splash">
-      <h1>AzadPay — Timuri Rewards</h1>
-      <p class="small">Open inside Telegram (@azad_pay_bot) for auto-login, ads & rewards</p>
-      <div style="margin-top:12px">
-        <button class="btn btn-primary" onclick="enterApp()">Open App</button>
-        <button class="btn btn-ghost" onclick="openBot()">Open Bot</button>
-      </div>
+  <!-- Splash / Header -->
+  <div id="splash" class="splash">
+    <h1>AzadPay — Timuri Rewards</h1>
+    <p class="small">Open inside Telegram (@azad_pay_bot) for auto-login, ads & rewards</p>
+    <div style="margin-top:12px">
+      <button class="btn btn-primary" onclick="enterApp()">Open App</button>
+      <button class="btn btn-ghost" onclick="openBot()">Open Bot</button>
     </div>
-
-    <!-- Main -->
-    <div id="main" class="hidden">
-
-      <!-- Profile + quick actions -->
-      <div class="card">
-        <div class="profile">
-          <img id="profilePhoto" class="avatar" src="https://i.ibb.co/fxLwLrR/user.png" alt="photo">
-          <div style="flex:1">
-            <div id="profileName" style="font-weight:700">Guest</div>
-            <div id="profileUsername" class="small"></div>
-            <div class="small">Balance: <strong id="balance">0.00</strong> AFN</div>
-            <div class="small">Ads today: <span id="adsToday">0</span>/100</div>
-          </div>
-        </div>
-
-        <div style="margin-top:12px" class="row">
-          <button class="btn btn-primary" id="watchAdBtn">▶︎ Watch Video — Earn 0.15 AFN</button>
-          <button class="btn btn-ghost" onclick="claimDailyBonus()">🎁 Daily Bonus</button>
-        </div>
-
-        <div id="quickMsg" class="small muted" style="margin-top:8px">Invite friends — get 2 AFN per user</div>
-      </div>
-
-      <!-- Home (Ads Info / Topup) -->
-      <div id="home" class="card">
-        <h3>Home</h3>
-        <p class="small">Watch rewarded videos, earn balance, then Top-up or Withdraw.</p>
-
-        <div style="margin-top:10px">
-          <h4 class="small">Mobile Top-up</h4>
-          <label class="small">Operator</label>
-          <select id="operator">
-            <option>Roshan</option>
-            <option>AWCC</option>
-            <option>MTN</option>
-            <option>Etisalat</option>
-          </select>
-          <label class="small">Phone number</label>
-          <input id="topupPhone" placeholder="07XXXXXXXX" />
-          <label class="small">Amount (AFN) — minimum 25</label>
-          <input id="topupAmount" type="number" min="25" value="25" />
-          <div class="row" style="margin-top:8px">
-            <button class="btn btn-primary" onclick="doTopup()">Top-up Now</button>
-            <button class="btn btn-ghost" onclick="showSection('wallet')">View Wallet</button>
-          </div>
-          <div id="topupStatus" class="small muted" style="margin-top:8px"></div>
-        </div>
-      </div>
-
-      <!-- Wallet -->
-      <div id="wallet" class="card hidden">
-        <h3>Wallet & Transactions</h3>
-        <div class="small">Balance: <strong id="walletBalance">0.00</strong> AFN</div>
-        <div style="margin-top:12px">
-          <h4 class="small">Transactions</h4>
-          <div id="txList" class="small">Loading...</div>
-        </div>
-
-        <div style="margin-top:12px">
-          <h4 class="small">Withdraw</h4>
-          <label class="small">Destination (AfghanPay/Mobile)</label>
-          <input id="withdrawTo" placeholder="Account / Mobile number" />
-          <label class="small">Amount (AFN)</label>
-          <input id="withdrawAmount" type="number" min="1" value="100" />
-          <div style="margin-top:8px" class="row">
-            <button class="btn btn-primary" onclick="requestWithdraw()">Request Withdraw</button>
-            <button class="btn btn-ghost" onclick="showSection('home')">Cancel</button>
-          </div>
-          <div id="withdrawStatus" class="small muted" style="margin-top:8px"></div>
-        </div>
-      </div>
-
-      <!-- Leaderboard -->
-      <div id="leaderboard" class="card hidden">
-        <h3>Leaderboard — Top Earners</h3>
-        <div id="leaderboardList" class="small">Loading...</div>
-      </div>
-
-      <!-- Referral -->
-      <div id="referral" class="card hidden">
-        <h3>Referral</h3>
-        <div class="small">Invite friends and get <strong>2 AFN</strong> per user (one-time).</div>
-        <div style="margin-top:8px" class="small">Your referral link:</div>
-        <div style="margin-top:8px"><input id="refLink" readonly /></div>
-        <div style="margin-top:8px" class="small">Referred users (who signed up with your link):</div>
-        <div id="referredList" class="small">Loading...</div>
-      </div>
-
-      <!-- Settings -->
-      <div id="settings" class="card hidden">
-        <h3>Settings</h3>
-        <label class="small">Display Name</label>
-        <input id="setName" placeholder="Your name" />
-        <div class="row" style="margin-top:8px">
-          <button class="btn btn-primary" onclick="saveSettings()">Save</button>
-          <button class="btn btn-ghost" onclick="resetName()">Reset</button>
-        </div>
-        <div id="settingsMsg" class="small muted" style="margin-top:8px"></div>
-      </div>
-
-    </div>
-
-    <div class="nav">
-      <button class="btn btn-ghost" onclick="showSection('home')">Home</button>
-      <button class="btn btn-ghost" onclick="showSection('leaderboard')">Leaderboard</button>
-      <button class="btn btn-ghost" onclick="showSection('wallet')">Wallet</button>
-      <button class="btn btn-ghost" onclick="showSection('referral')">Referral</button>
-      <button class="btn btn-ghost" onclick="showSection('settings')">Settings</button>
-    </div>
-
-    <footer>© AzadPay • @azad_pay_bot</footer>
   </div>
 
-<script>
-/* ================== CONFIG ================== */
-const ZONE_ID = '10102842';
-const REWARD = 0.15;              // AFN per full rewarded video
-const DAILY_LIMIT = 100;          // ads per user per day
-const REFERRAL_REWARD = 2.0;      // AFN per referred user
-const DAILY_BONUS = 1.0;          // AFN daily bonus
+  <!-- Main -->
+  <div id="main" class="hidden">
 
-/* Firebase config (your provided) */
+    <!-- Profile + quick actions -->
+    <div class="card">
+      <div class="profile">
+        <img id="profilePhoto" class="avatar" src="https://i.ibb.co/fxLwLrR/user.png" alt="photo">
+        <div style="flex:1">
+          <div id="profileName" style="font-weight:700">Guest</div>
+          <div id="profileUsername" class="small"></div>
+          <div class="small">Balance: <strong id="balance">0.00</strong> AFN</div>
+          <div class="small">Ads today: <span id="adsToday">0</span>/100</div>
+        </div>
+      </div>
+
+      <div style="margin-top:12px" class="row">
+        <button class="btn btn-primary" id="watchAdBtn">▶︎ Watch Video — Earn 0.15 AFN</button>
+        <button class="btn btn-ghost" onclick="claimDailyBonus()">🎁 Daily Bonus</button>
+      </div>
+      <div id="quickMsg" class="small muted" style="margin-top:8px">Invite friends — get 2 AFN per user</div>
+    </div>
+
+    <!-- Home -->
+    <div id="home" class="card">
+      <h3>Home</h3>
+      <p class="small">Watch rewarded videos, earn balance, then Top-up or Withdraw.</p>
+
+      <div style="margin-top:10px">
+        <h4 class="small">Mobile Top-up</h4>
+        <label class="small">Operator</label>
+        <select id="operator">
+          <option>Roshan</option>
+          <option>AWCC</option>
+          <option>MTN</option>
+          <option>Etisalat</option>
+        </select>
+        <label class="small">Phone number</label>
+        <input id="topupPhone" placeholder="07XXXXXXXX" />
+        <label class="small">Amount (AFN) — minimum 25</label>
+        <input id="topupAmount" type="number" min="25" value="25" />
+        <div class="row" style="margin-top:8px">
+          <button class="btn btn-primary" onclick="doTopup()">Top-up Now</button>
+          <button class="btn btn-ghost" onclick="showSection('wallet')">View Wallet</button>
+        </div>
+        <div id="topupStatus" class="small muted" style="margin-top:8px"></div>
+      </div>
+    </div>
+
+    <!-- Wallet -->
+    <div id="wallet" class="card hidden">
+      <h3>Wallet & Transactions</h3>
+      <div class="small">Balance: <strong id="walletBalance">0.00</strong> AFN</div>
+      <div style="margin-top:12px">
+        <h4 class="small">Transactions</h4>
+        <div id="txList" class="small">Loading...</div>
+      </div>
+
+      <div style="margin-top:12px">
+        <h4 class="small">Withdraw</h4>
+        <label class="small">Destination (AfghanPay/Mobile)</label>
+        <input id="withdrawTo" placeholder="Account / Mobile number" />
+        <label class="small">Amount (AFN)</label>
+        <input id="withdrawAmount" type="number" min="1" value="100" />
+        <div style="margin-top:8px" class="row">
+          <button class="btn btn-primary" onclick="requestWithdraw()">Request Withdraw</button>
+          <button class="btn btn-ghost" onclick="showSection('home')">Cancel</button>
+        </div>
+        <div id="withdrawStatus" class="small muted" style="margin-top:8px"></div>
+      </div>
+    </div>
+
+    <!-- Leaderboard -->
+    <div id="leaderboard" class="card hidden">
+      <h3>Leaderboard — Top Earners</h3>
+      <div id="leaderboardList" class="small">Loading...</div>
+    </div>
+
+    <!-- Referral -->
+    <div id="referral" class="card hidden">
+      <h3>Referral</h3>
+      <div class="small">Invite friends and get <strong>2 AFN</strong> per user (one-time).</div>
+      <div style="margin-top:8px" class="small">Your referral link:</div>
+      <div style="margin-top:8px"><input id="refLink" readonly /></div>
+      <div style="margin-top:8px" class="small">Referred users:</div>
+      <div id="referredList" class="small">Loading...</div>
+    </div>
+
+    <!-- Settings -->
+    <div id="settings" class="card hidden">
+      <h3>Settings</h3>
+      <label class="small">Display Name</label>
+      <input id="setName" placeholder="Your name" />
+      <div class="row" style="margin-top:8px">
+        <button class="btn btn-primary" onclick="saveSettings()">Save</button>
+        <button class="btn btn-ghost" onclick="resetName()">Reset</button>
+      </div>
+      <div id="settingsMsg" class="small muted" style="margin-top:8px"></div>
+    </div>
+
+  </div>
+
+  <div class="nav">
+    <button class="btn btn-ghost" onclick="showSection('home')">Home</button>
+    <button class="btn btn-ghost" onclick="showSection('leaderboard')">Leaderboard</button>
+    <button class="btn btn-ghost" onclick="showSection('wallet')">Wallet</button>
+    <button class="btn btn-ghost" onclick="showSection('referral')">Referral</button>
+    <button class="btn btn-ghost" onclick="showSection('settings')">Settings</button>
+  </div>
+
+  <footer>© AzadPay • @azad_pay_bot</footer>
+</div>
+
+<script>
+/* CONFIG */
+const ZONE_ID = '10102842';
+const REWARD = 0.15;
+const DAILY_LIMIT = 100;
+const REFERRAL_REWARD = 2.0;
+const DAILY_BONUS = 1.0;
+
+/* Firebase */
 const firebaseConfig = {
   apiKey: "AIzaSyDCcKpU-6lPnjn7NSTZVq6R5HGLac2GlAk",
   authDomain: "zaroratpay.firebaseapp.com",
@@ -201,340 +199,36 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const rdb = firebase.database();
 
-/* Telegram WebApp */
-let tg = null;
-try { tg = window.Telegram.WebApp; tg.expand(); } catch(e){ tg = null; }
+/* Telegram */
+let tg=null; try{ tg=window.Telegram.WebApp; tg.expand(); }catch(e){ tg=null; }
 
 /* STATE */
-let currentUser = null; // telegram user object
-let uid = null;
-
-/* UI refs */
-const splashEl = document.getElementById('splash');
-const mainEl = document.getElementById('main');
-const profilePhoto = document.getElementById('profilePhoto');
-const profileName = document.getElementById('profileName');
-const profileUsername = document.getElementById('profileUsername');
-const balanceEl = document.getElementById('balance');
-const adsTodayEl = document.getElementById('adsToday');
-const watchAdBtn = document.getElementById('watchAdBtn');
-const refLinkInput = document.getElementById('refLink');
-const referredListEl = document.getElementById('referredList');
-const leaderboardListEl = document.getElementById('leaderboardList');
-const txListEl = document.getElementById('txList');
-const walletBalanceEl = document.getElementById('walletBalance');
+let currentUser=null; let uid=null;
+const splashEl=document.getElementById('splash');
+const mainEl=document.getElementById('main');
+const profilePhoto=document.getElementById('profilePhoto');
+const profileName=document.getElementById('profileName');
+const profileUsername=document.getElementById('profileUsername');
+const balanceEl=document.getElementById('balance');
+const adsTodayEl=document.getElementById('adsToday');
+const watchAdBtn=document.getElementById('watchAdBtn');
+const refLinkInput=document.getElementById('refLink');
+const referredListEl=document.getElementById('referredList');
+const leaderboardListEl=document.getElementById('leaderboardList');
+const txListEl=document.getElementById('txList');
+const walletBalanceEl=document.getElementById('walletBalance');
 
 /* ---------- helpers ---------- */
-function enterApp(){
-  splashEl.classList.add('hidden');
-  mainEl.classList.remove('hidden');
-  initApp();
-}
-function openBot(){ window.open('https://t.me/azad_pay_bot', '_blank'); }
+function enterApp(){ splashEl.classList.add('hidden'); mainEl.classList.remove('hidden'); initApp(); }
+function openBot(){ window.open('https://t.me/azad_pay_bot','_blank'); }
 function showSection(id){
-  const sections = ['home','wallet','leaderboard','referral','settings'];
-  sections.forEach(s => document.getElementById(s).classList.toggle('hidden', s !== id));
-  if(id === 'wallet') loadTransactions();
-  if(id === 'leaderboard') loadLeaderboard();
-  if(id === 'referral') loadReferredList();
+  ['home','wallet','leaderboard','referral','settings'].forEach(s=>document.getElementById(s).classList.toggle('hidden',s!==id));
+  if(id==='wallet') loadTransactions();
+  if(id==='leaderboard') loadLeaderboard();
+  if(id==='referral') loadReferredList();
 }
 
-/* find ad function (sdk creates show_<zone>) */
+/* find ad fn */
 function findAdFn(){
-  const fnName = 'show_' + ZONE_ID;
-  if(window[fnName] && typeof window[fnName] === 'function') return window[fnName];
-  for(const k in window) {
-    if(typeof k === 'string' && k.startsWith('show_') && typeof window[k] === 'function') return window[k];
-  }
-  return null;
-}
-
-/* atomic reward */
-function grantRewardAtomic(userId, amount){
-  const uRef = rdb.ref('users/' + userId);
-  const today = new Date(); const dayKey = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
-  return uRef.transaction(u => {
-    if(!u) {
-      u = { balance:0, ads_today:0, ads_date: dayKey, name: currentUser?.first_name || 'User', referrals: 0 };
-    }
-    if(!u.ads_date || u.ads_date !== dayKey){
-      u.ads_date = dayKey;
-      u.ads_today = 0;
-    }
-    if((u.ads_today || 0) >= DAILY_LIMIT) {
-      return; // abort: limit reached
-    }
-    u.ads_today = (u.ads_today || 0) + 1;
-    u.balance = Number(((u.balance || 0) + amount).toFixed(6));
-    u.total_earned = Number(((u.total_earned || 0) + amount).toFixed(6));
-    return u;
-  }, (err, committed, snapshot) => {
-    if(err){ console.error(err); alert('Transaction failed'); return; }
-    if(!committed){ alert('د نن ورځې حد بشپړ شو'); return; }
-    // record tx
-    const txRef = rdb.ref('transactions').push();
-    txRef.set({ uid: userId, type: 'reward', amount, ts: Date.now(), zone: ZONE_ID });
-  });
-}
-
-/* record impression */
-function recordImpression(){
-  rdb.ref('stats/impressions/' + ZONE_ID).transaction(n => (n||0) + 1);
-}
-
-/* ---------- init app ---------- */
-function initApp(){
-  // fill profile info
-  try {
-    if(tg && tg.initDataUnsafe && tg.initDataUnsafe.user){
-      currentUser = tg.initDataUnsafe.user;
-    } else {
-      // fallback: if localstorage has telegram_user (after server-side login), load it
-      try { currentUser = JSON.parse(localStorage.getItem('telegram_user')); } catch(e){}
-    }
-    if(!currentUser) {
-      alert('لطفاً دغه App د Telegram دننه خلاص کړئ (press Open App in bot).');
-      return;
-    }
-    uid = String(currentUser.id);
-    profilePhoto.src = currentUser.photo_url || profilePhoto.src;
-    profileName.innerText = (currentUser.first_name || 'User') + (currentUser.last_name ? (' ' + currentUser.last_name) : '');
-    profileUsername.innerText = currentUser.username ? ('@' + currentUser.username) : '';
-    refLinkInput.value = `https://t.me/azad_pay_bot?start=${uid}`;
-
-    // ensure user record
-    const uRef = rdb.ref('users/' + uid);
-    uRef.once('value').then(snap => {
-      const now = new Date(); const dayKey = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
-      if(!snap.exists()){
-        uRef.set({ id: uid, name: currentUser.first_name || 'User', username: currentUser.username || '', photo: currentUser.photo_url || '', balance:0, ads_today:0, ads_date: dayKey, joinedAt: Date.now() });
-      } else {
-        const d = snap.val();
-        if(!d.ads_date || d.ads_date !== dayKey) uRef.update({ ads_today:0, ads_date: dayKey });
-      }
-    });
-
-    // live sync
-    rdb.ref('users/' + uid).on('value', snap => {
-      const d = snap.val() || {};
-      balanceEl.innerText = (d.balance || 0).toFixed(2);
-      adsTodayEl.innerText = d.ads_today || 0;
-      walletBalanceEl && (walletBalanceEl.innerText = (d.balance||0).toFixed(2));
-    });
-
-    // watch ad button
-    watchAdBtn.addEventListener('click', playRewardedAd);
-
-    // handle referral param if present in url (bot passes ?start=REF)
-    const params = new URLSearchParams(window.location.search);
-    const ref = params.get('start') || params.get('ref');
-    if(ref && ref !== uid) {
-      const claimKey = `ref_claims/${uid}`;
-      rdb.ref(claimKey).once('value').then(snap => {
-        if(snap.exists()) return;
-        // credit referrer
-        const refUserRef = rdb.ref('users/' + ref);
-        refUserRef.transaction(u => {
-          if(!u) return u;
-          u.balance = Number(((u.balance||0) + REFERRAL_REWARD).toFixed(6));
-          u.referrals = (u.referrals||0) + 1;
-          return u;
-        }, (err, committed) => {
-          if(committed){
-            rdb.ref('transactions').push({ uid: ref, type: 'referral', amount: REFERRAL_REWARD, from: uid, ts: Date.now()});
-            rdb.ref(claimKey).set({ ref, ts: Date.now() });
-          }
-        });
-      });
-    }
-
-    // preload leaderboard
-    loadLeaderboard();
-    loadTransactions();
-    loadReferredList();
-  } catch(e){
-    console.error('initApp error', e);
-  }
-}
-
-/* ---------- ad flow ---------- */
-let lastAdStart = 0;
-async function playRewardedAd(){
-  if(!uid){ alert('لطفاً د Telegram دننه اپ خلاص کړئ.'); return; }
-
-  // prevent spam
-  const now = Date.now();
-  if(now - lastAdStart < 5000){ alert('لطفاً لږ انتظار وکړئ.'); return; }
-  lastAdStart = now;
-
-  // quick check daily count
-  const snap = await rdb.ref('users/' + uid).once('value');
-  const u = snap.val() || {};
-  if((u.ads_today || 0) >= DAILY_LIMIT){ alert('تاسو د نن ورځې حد ته رسیدلي یاست.'); return; }
-
-  const adFn = findAdFn();
-  if(!adFn){ alert('Ad SDK not loaded yet. Please open inside Telegram or try later.'); return; }
-
-  // record impression
-  recordImpression();
-
-  setStatus('Ad loading…');
-  let rewarded = false;
-
-  try {
-    // try promise-based patterns
-    let res;
-    try { res = adFn('pop'); } catch(e1){
-      try { res = adFn({type:'rewarded'}); } catch(e2){
-        try { res = adFn(); } catch(e3){ res = undefined; }
-      }
-    }
-    if(res && typeof res.then === 'function'){
-      setStatus('Playing ad…');
-      await res; // resolves when ad completed
-      rewarded = true;
-      setStatus('Ad completed');
-    } else {
-      // fallback to callbacks that some SDKs emit
-      setStatus('Playing ad (callback mode)…');
-      const cbNames = ['onAdComplete','onReward','on_ad_complete','onRewarded','onAdClosed','onMonetagReward'];
-      const originals = {};
-      let cbTimer;
-      for(const n of cbNames){ originals[n] = window[n]; window[n] = function(){ rewarded = true; clearTimeout(cbTimer); }; }
-      // call ad
-      try { adFn(); } catch(e){ console.warn('adFn error', e); }
-      await new Promise(r => cbTimer = setTimeout(r, 25000));
-      for(const n of cbNames){ window[n] = originals[n]; }
-      if(rewarded) setStatus('Ad callback completed');
-    }
-
-    if(rewarded){
-      await grantRewardAtomic(uid, REWARD);
-      alert(`✅ تاسو ${REWARD.toFixed(2)} AFN ترلاسه کړل.`);
-    } else {
-      setStatus('Ad not completed — no reward');
-      alert('ویډیو بشپړه نه شوه — انعام نه ورکول کیږي.');
-    }
-  } catch(err){
-    console.error('playRewardedAd error', err);
-    alert('د اعلان پر مهال تېروتنه رامنځته شوه.');
-  }
-}
-
-/* ---------- Leaderboard ---------- */
-function loadLeaderboard(){
-  rdb.ref('users').orderByChild('balance').limitToLast(10).once('value').then(snap=>{
-    const arr = []; snap.forEach(ch => arr.push(ch.val()));
-    arr.sort((a,b)=> (b.balance||0) - (a.balance||0));
-    if(arr.length === 0){ leaderboardListEl.innerHTML = '<div class="small muted">No users yet.</div>'; return; }
-    leaderboardListEl.innerHTML = arr.map((u,i) => `<div style="padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.02)"><strong>#${i+1} ${u.name||u.id}</strong> — ${(u.balance||0).toFixed(2)} AFN</div>`).join('');
-  });
-}
-
-/* ---------- Transactions ---------- */
-function loadTransactions(){
-  txListEl.innerHTML = 'Loading...';
-  rdb.ref('transactions').orderByChild('uid').equalTo(uid).limitToLast(50).once('value').then(snap=>{
-    const arr=[]; snap.forEach(c=>arr.push(c.val()));
-    arr.sort((a,b)=> b.ts - a.ts);
-    if(arr.length===0){ txListEl.innerHTML = '<div class="small muted">No transactions found.</div>'; return; }
-    txListEl.innerHTML = arr.map(t => `<div class="tx-item">${new Date(t.ts).toLocaleString()} — ${t.type} — ${ (t.amount||0).toFixed(2) } AFN</div>`).join('');
-  });
-}
-
-/* ---------- Referral list ---------- */
-function loadReferredList(){
-  // referred users are those with transactions of type referral from this user OR we store reverse mapping
-  rdb.ref('users').orderByChild('referred_by').equalTo(uid).once('value').then(snap=>{
-    const arr=[]; snap.forEach(c=>arr.push(c.val()));
-    if(arr.length===0){ referredListEl.innerHTML = '<div class="small muted">No referrals yet.</div>'; return; }
-    referredListEl.innerHTML = arr.map(u => `<div style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.02)">${u.name||u.id} — ${(u.balance||0).toFixed(2)} AFN</div>`).join('');
-  });
-}
-
-/* ---------- Top-up (simulate) ---------- */
-function doTopup(){
-  const phone = document.getElementById('topupPhone').value.trim();
-  const amt = Number(document.getElementById('topupAmount').value || 0);
-  const op = document.getElementById('operator').value;
-  const statusEl = document.getElementById('topupStatus');
-  statusEl.innerText = '';
-  if(!phone || phone.length < 7){ statusEl.innerText = 'Enter valid phone number.'; return; }
-  if(amt < 25){ statusEl.innerText = 'Top-up must be at least 25 AFN.'; return; }
-
-  // atomic deduct
-  const balRef = rdb.ref('users/' + uid + '/balance');
-  balRef.transaction(cur => { if((cur||0) < amt) return; return (cur||0) - amt; }, (err, committed, snap) => {
-    if(err){ statusEl.innerText = 'Error processing topup.'; console.error(err); return; }
-    if(!committed){ statusEl.innerText = 'Insufficient balance.'; return; }
-    const tx = { uid, type: 'topup', amount: amt, phone, operator: op, ts: Date.now(), status: 'success' };
-    rdb.ref('transactions').push(tx);
-    rdb.ref('topups').push(tx);
-    statusEl.innerText = `Top-up successful: ${amt.toFixed(2)} AFN → ${phone} (${op})`;
-    loadTransactions();
-  });
-}
-
-/* ---------- Withdraw ---------- */
-function requestWithdraw(){
-  const to = document.getElementById('withdrawTo').value.trim();
-  const amt = Number(document.getElementById('withdrawAmount').value || 0);
-  const statusEl = document.getElementById('withdrawStatus'); statusEl.innerText = '';
-  if(!to || to.length < 4){ statusEl.innerText = 'Enter destination.'; return; }
-  if(amt <= 0){ statusEl.innerText = 'Enter amount.'; return; }
-
-  const balRef = rdb.ref('users/' + uid + '/balance');
-  balRef.transaction(cur => { if((cur||0) < amt) return; return (cur||0) - amt; }, (err, committed, snap) => {
-    if(err){ statusEl.innerText = 'Error.'; console.error(err); return; }
-    if(!committed){ statusEl.innerText = 'Insufficient balance.'; return; }
-    const wRef = rdb.ref('withdraws').push();
-    const wobj = { id: wRef.key, uid, to, amount: amt, status: 'pending', ts: Date.now() };
-    wRef.set(wobj);
-    rdb.ref('transactions').push({ uid, type:'withdraw_request', amount: amt, ts: Date.now() });
-    statusEl.innerText = 'Withdraw requested (pending).';
-    loadTransactions();
-  });
-}
-
-/* ---------- Daily bonus ---------- */
-function claimDailyBonus(){
-  const uRef = rdb.ref('users/' + uid);
-  uRef.once('value').then(snap => {
-    const d = snap.val() || {};
-    const lastClaim = d.lastDaily || 0;
-    const todayStart = new Date().setHours(0,0,0,0);
-    if(lastClaim >= todayStart){ alert('Daily bonus already claimed.'); return; }
-    uRef.transaction(u => {
-      if(!u) return u;
-      u.balance = Number(((u.balance||0) + DAILY_BONUS).toFixed(6));
-      u.lastDaily = Date.now();
-      return u;
-    }, (err, committed) => { if(committed){ rdb.ref('transactions').push({ uid, type:'daily_bonus', amount: DAILY_BONUS, ts: Date.now() }); alert(`Daily bonus ${DAILY_BONUS} AFN added!`); }});
-  });
-}
-
-/* ---------- Settings ---------- */
-function saveSettings(){
-  const newName = document.getElementById('setName').value.trim();
-  if(!newName) { document.getElementById('settingsMsg').innerText = 'Enter a name'; return; }
-  rdb.ref('users/' + uid).update({ name: newName }).then(()=>{ document.getElementById('settingsMsg').innerText = 'Saved'; profileName.innerText = newName; });
-}
-function resetName(){ document.getElementById('setName').value = currentUser?.first_name || ''; document.getElementById('settingsMsg').innerText = ''; }
-
-/* ---------- small util ---------- */
-function setStatus(msg){ document.getElementById('quickMsg').innerText = msg; }
-
-/* ---------- initial mount ---------- */
-(function(){
-  // show splash or auto-enter if inside telegram with initData
-  if(tg && tg.initDataUnsafe && tg.initDataUnsafe.user){
-    // if opened inside telegram, auto-enter
-    // give a small delay for SDK load
-    setTimeout(()=>{ enterApp(); }, 400);
-  } else {
-    // show splash; user must press Open App which will open bot web_app from Telegram
-  }
-})();
-</script>
-</body>
-</html>
+  const fn='show_'+ZONE_ID;
+  if(window[fn] && typeof window[fn]==
